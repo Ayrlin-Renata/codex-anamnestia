@@ -1,0 +1,34 @@
+# This file maps local Lua module files to their destination on the wiki.
+
+prefix: "Module:Data"
+history_prefix: "/History"
+meta_page: "/meta.json"
+
+wiki:
+  host: "holoearth.wiki.gg" # e.g., en.wikipedia.org
+  path: "/"
+
+# The key is the local filename in staging/modules/
+# The value is the paprtial page name on the wiki.
+
+modules:
+  utils.lua: "/Utils"
+  creature_util.lua: "/Creature/Util"
+  creature_ui.lua: "/Creature/UI"
+
+# This would map resolved JSON data directly to wiki pages, if desired.
+data:
+  creature_spec_resolved.json: "/Creature.json"
+  drop_creature_spec_resolved.json: "/Drop_Creature.json"
+  drop_harvestable_object_spec_resolved.json: "/Drop_Harvestable_Object.json"
+  drop_object_nest_spec_resolved.json: "/Drop_Object_Nest.json"
+  drop_object_breakable_spec_resolved.json: "/Drop_Object_Breakable.json"
+  element_spec_resolved.json: "/Element.json"
+  facility_spec_resolved.json: "/Facility.json"
+  item_spec_resolved.json: "/Item.json"
+  mood_spec_resolved.json: "/Mood.json"
+  object_breakable_spec_resolved.json: "/Object_Breakable.json"
+  object_harvestable_spec_resolved.json: "/Object_Harvestable.json"
+  recipe_craft_spec_resolved.json: "/Recipe_Craft.json"
+  recipe_cultivation_spec_resolved.json: "/Recipe_Cultivation.json"
+  recipe_smelt_spec_resolved.json: "/Recipe_Smelt.json"

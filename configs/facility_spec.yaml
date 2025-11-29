@@ -1,0 +1,66 @@
+sources:
+  - name: "facility_en"
+    type: "manual"
+    data:
+     - { id: 1, name: "Handcraft" }
+     - { id: 10, name: "Workbench" }
+     - { id: 22, name: "Smelting Furnace" }
+     - { id: 30, name: "Cooking Station" }
+     - { id: 31, name: "Stone Cooking Pot" }
+     - { id: 33, name: "Tanning Rack" }
+     - { id: 37, name: "Mixing Cauldron" }
+     - { id: 39, name: "Projection (All)" }
+     - { id: 391, name: "Projection (All, ID 391)" }
+     - { id: 392, name: "Projection (All, ID 392)" }
+     - { id: 393, name: "Projection (ID 393)" }
+     - { id: 394, name: "Projection (ID 394)" }
+     - { id: 395, name: "Projection (Simulation Room)" }
+     - { id: 396, name: "Projection (ID 396)" }
+     - { id: 401, name: "Observation Data Exchange" }
+     - { id: 5, name: "Furnace (All)" }
+     - { id: 501, name: "My Room Instance Exchange" }
+     - { id: 6, name: "Campfire" }
+     - { id: 901, name: "Observation Data Exchange (ID 901)" }
+     - { id: 902, name: "Observation Data Exchange (ID 902)" }
+     - { id: 903, name: "Observation Data Exchange (ID 903)" }
+     - { id: 904, name: "Observation Data Exchange (ID 904)" }
+     - { id: 905, name: "Projection (ID 905)" }
+    strategy: "lookup" 
+    key: "id"
+
+  # The Japanese map, which we will link to.
+  - name: "facility_ja"
+    type: "manual"
+    data:
+     - { id: 1, name: "ハンドクラフト" }
+     - { id: 10, name: "作業台" }
+     - { id: 22, name: "製錬炉" }
+     - { id: 30, name: "調理台" }
+     - { id: 31, name: "石の調理鍋" }
+     - { id: 33, name: "皮なめし台" }
+     - { id: 37, name: "調合窯" }
+     - { id: 39, name: "プロジェクション (すべて)" }
+     - { id: 391, name: "プロジェクション (すべて, ID 391)" }
+     - { id: 392, name: "プロジェクション (すべて, ID 392)" }
+     - { id: 393, name: "プロジェクション (ID 393)" }
+     - { id: 394, name: "プロジェクション (ID 394)" }
+     - { id: 395, name: "プロジェクション (シミュレーションルーム)" }
+     - { id: 396, name: "プロジェクション (ID 396)" }
+     - { id: 401, name: "観測データ交換所" }
+     - { id: 5, name: "炉 (すべて)" }
+     - { id: 501, name: "マイルーム・インスタンス交換所" }
+     - { id: 6, name: "たき火" }
+     - { id: 901, name: "観測データ交換所 (ID 901)" }
+     - { id: 902, name: "観測データ交換所 (ID 902)" }
+     - { id: 903, name: "観測データ交換所 (ID 903)" }
+     - { id: 904, name: "観測データ交換所 (ID 904)" }
+     - { id: 905, name: "プロジェクション (ID 905)" }
+    strategy: "lookup"
+    key: "id"
+
+primary_source: "facility_en"
+
+output_structure:
+  id: { from: "facility_en", field: "id" }
+  name_en: { from: "facility_en", field: "name" }
+  name_ja: { from: "facility_ja", link_key: { from: "facility_en", field: "id" }, field: "name" }

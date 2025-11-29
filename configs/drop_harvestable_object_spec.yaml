@@ -1,0 +1,20 @@
+# Specification for resolving drop items from harvestable objects.
+
+sources:
+  - name: "master_dropitem_for_harvestable_object"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_dropitem_for_harvestable_object.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "dropId"
+
+primary_source: "master_dropitem_for_harvestable_object"
+
+output_structure:
+  id: { from: "master_dropitem_for_harvestable_object", field: "dropId" }
+  drop_group: { from: "master_dropitem_for_harvestable_object", field: "dropGroup" }
+  item_id: { from: "master_dropitem_for_harvestable_object", field: "itemId" }
+  drop_min_amount: { from: "master_dropitem_for_harvestable_object", field: "dropMinAmount" }
+  drop_max_amount: { from: "master_dropitem_for_harvestable_object", field: "dropMaxAmount" }
+  weight: { from: "master_dropitem_for_harvestable_object", field: "weight" }

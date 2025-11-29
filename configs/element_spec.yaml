@@ -1,0 +1,48 @@
+# Specification for resolving element data from manual sources.
+
+sources:
+  # The English map will be our primary source to iterate over.
+  - name: "elements_en"
+    type: "manual"
+    # The data is structured as a list of objects to fit the resolver's primary loop.
+    data:
+      - { id: 1, name: "1" }
+      - { id: 2, name: "2" }
+      - { id: 3, name: "3" }
+      - { id: 4, name: "4" }
+      - { id: 101, name: "Fire" }
+      - { id: 102, name: "Water" }
+      - { id: 103, name: "Wind" }
+      - { id: 104, name: "Electric" }
+      - { id: 105, name: "Terra" }
+      - { id: 106, name: "Ice" }
+      - { id: 107, name: "107" }
+      - { id: 201, name: "201" }
+    strategy: "lookup" # Still define a strategy so it can be looked up if needed
+    key: "id"
+
+  # The Japanese map, which we will link to.
+  - name: "elements_ja"
+    type: "manual"
+    data:
+      - { id: 1, name: "1" }
+      - { id: 2, name: "2" }
+      - { id: 3, name: "3" }
+      - { id: 4, name: "4" }
+      - { id: 101, name: "火" }
+      - { id: 102, name: "水" }
+      - { id: 103, name: "風" }
+      - { id: 104, name: "雷" }
+      - { id: 105, name: "土" }
+      - { id: 106, name: "氷" }
+      - { id: 107, name: "107" }
+      - { id: 201, name: "201" }
+    strategy: "lookup"
+    key: "id"
+
+primary_source: "elements_en"
+
+output_structure:
+  id: { from: "elements_en", field: "id" }
+  name_en: { from: "elements_en", field: "name" }
+  name_ja: { from: "elements_ja", link_key: { from: "elements_en", field: "id" }, field: "name" }

@@ -1,0 +1,61 @@
+# Specification for resolving smelting recipes.
+
+sources:
+  - name: "master_smelting_craft_recipe"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_smelting_craft_recipe.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "smeltingCraftRecipeId"
+
+  - name: "master_smelting_craft_recipe_group"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_smelting_craft_recipe_group.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "craftRecipeId"
+
+  # Byproducts use the same source file as crafting
+  - name: "master_craft_byproduct_drop"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_craft_byproduct_drop.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "dropId"
+
+primary_source: "master_smelting_craft_recipe"
+
+output_structure:
+  id: { from: "master_smelting_craft_recipe", field: "smeltingCraftRecipeId" }
+  
+  # Direct fields from the primary source
+  system_type: { from: "master_smelting_craft_recipe", field: "systemType" }
+  material_item_id: { from: "master_smelting_craft_recipe", field: "materialItemId" }
+  material_amount: { from: "master_smelting_craft_recipe", field: "materialAmount" }
+  result_item_id: { from: "master_smelting_craft_recipe", field: "resultItemId" }
+  result_amount: { from: "master_smelting_craft_recipe", field: "resultAmount" }
+  craft_time: { from: "master_smelting_craft_recipe", field: "craftTime" }
+  drop_count_min: { from: "master_smelting_craft_recipe", field: "dropCountMin" }
+  drop_count_max: { from: "master_smelting_craft_recipe", field: "dropCountMax" }
+
+  recipe_groups:
+    type: "list"
+    from: "master_smelting_craft_recipe_group"
+    link_key: { from: "master_smelting_craft_recipe", field: "smeltingCraftRecipeId" }
+    sub_object:
+      group_id: { from_parent: true, field: "recipeGroupId" }
+      system_type: { from_parent: true, field: "systemType" }
+
+  byproducts:
+    type: "list"
+    from: "master_craft_byproduct_drop"
+    link_key: { from: "master_smelting_craft_recipe", field: "byproductDropId" }
+    sub_object:
+      drop_group: { from_parent: true, field: "dropGroup" }
+      weight: { from_parent: true, field: "weight" }
+      item_id: { from_parent: true, field: "itemId" }
+      drop_min_amount: { from_parent: true, field: "dropMinAmount" }
+      drop_max_amount: { from_parent: true, field: "dropMaxAmount" }

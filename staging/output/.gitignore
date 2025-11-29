@@ -1,0 +1,4 @@
+# Ignore resolved data outputs.
+# This data is an intermediate step before upload and can be regenerated.
+*
+!.gitignore

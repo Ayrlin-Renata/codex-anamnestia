@@ -1,0 +1,5 @@
+mwclient
+requests
+PyYAML
+pycryptodome
+python-dotenv

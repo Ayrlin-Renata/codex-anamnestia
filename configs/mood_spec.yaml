@@ -1,0 +1,32 @@
+sources:
+  - name: "master_mood_type"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_mood_type.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "moodTypeId"
+
+  - name: "master_text_EN"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_text_EN.dat"
+    decoder: "decode_survival_dat"
+
+  - name: "master_text_JA"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_text_JA.dat"
+    decoder: "decode_survival_dat"
+
+primary_source: "master_mood_type"
+
+output_structure:
+  id: { from: "master_mood_type", field: "moodTypeId" }
+
+  name_en: { from: "master_text_EN", link_key: { from: "master_mood_type", field: "nameKey" } }
+  name_ja: { from: "master_text_JA", link_key: { from: "master_mood_type", field: "nameKey" } }
+
+  max_mood: { from: "master_mood_type", field: "maxMood" }
+  min_effect_value: { from: "master_mood_type", field: "minEffectValue" }
+  max_effect_value: { from: "master_mood_type", field: "maxEffectValue" }

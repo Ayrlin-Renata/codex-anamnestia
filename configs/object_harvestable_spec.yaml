@@ -1,0 +1,122 @@
+# Specification for resolving harvestable objects.
+
+sources:
+  - name: "breakable_name_en"
+    type: "manual"
+    data:
+      ウサニンジン: "Usa Carrot"
+      ノラニンニク: "Nora Garlic"
+      シャッキリオニオン: "Crisp Onion"
+      綿花: "Cotton"
+      メディカルリーフ: "Medical Leaf"
+      ラベンダー: "Lavender"
+      ホタルブクロ: "Spotted Bellflower"
+      キノコ: "Mushroom"
+      ドクタケ: "Poison Shroom"
+      ハッカペッパー: "Hakka Pepper"
+      フレイムペッパー: "Flame Pepper"
+      シビレタケ: "Numbing Shroom"
+      茂み: "Bush"
+      アブラナ: "Canola"
+      ヒエアロエ: "Cooling Aloe"
+      刺さった剣（仮）: "Stuck Sword (Temp)"
+      リンゴ: "Apple"
+      キリットレモン: "Sharp Lemon"
+      はちみつ: "Honey"
+      うるおいベリー: "Moisture Berry"
+      ハートチェリー: "Heart Cherry"
+      ミエルベリー: "Blueberry"
+      ルビーチェリー: "Ruby Cherry"
+      木の枝: "Tree Branch"
+      クズ石: "Scrap Stone"
+      火打石: "Flint"
+      落ちたリンゴ: "Fallen Apple"
+      ヒメニチソウ: "Periwinkle"
+      ドラゴンの鱗: "Dragon Scale"
+      爆弾石: "Bomb Rock"
+
+  - name: "breakable_name_ja"
+    type: "manual"
+    data:
+      ウサニンジン: "ウサニンジン"
+      ノラニンニク: "ノラニンニク"
+      シャッキリオニオン: "シャッキリオニオン"
+      綿花: "綿花"
+      メディカルリーフ: "メディカルリーフ"
+      ラベンダー: "ラベンダー"
+      ホタルブクロ: "ホタルブクロ"
+      キノコ: "キノコ"
+      ドクタケ: "ドクタケ"
+      ハッカペッパー: "ハッカペッパー"
+      フレイムペッパー: "フレイムペッパー"
+      シビレタケ: "シビレタケ"
+      茂み: "茂み"
+      アブラナ: "アブラナ"
+      ヒエアロエ: "ヒエアロエ"
+      刺さった剣（仮）: "刺さった剣（仮）"
+      リンゴ: "リンゴ"
+      キリットレモン: "キリットレモン"
+      はちみつ: "はちみつ"
+      うるおいベリー: "うるおいベリー"
+      ハートチェリー: "ハートチェリー"
+      ミエルベリー: "ミエルベリー"
+      ルビーチェリー: "ルビーチェリー"
+      木の枝: "木の枝"
+      クズ石: "クズ石"
+      火打石: "火打石"
+      落ちたリンゴ: "落ちたリンゴ"
+      ヒメニチソウ: "ヒメニチソウ"
+      ドラゴンの鱗: "ドラゴンの鱗"
+      爆弾石: "爆弾石"
+
+  - name: "master_harvestable_object"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_harvestable_object.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "objectId"
+
+  - name: "master_harvestable_object_spawner"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_harvestable_object_spawner.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "objectId"
+
+primary_source: "master_harvestable_object"
+
+output_structure:
+  id: { from: "master_harvestable_object", field: "objectId" }
+  name_en: { from: "breakable_name_en", link_key: { from: "master_harvestable_object", field: "nameForTool" }}
+  name_ja: { from: "breakable_name_ja", link_key: { from: "master_harvestable_object", field: "nameForTool" }}
+
+  # Direct fields from the primary source
+  name_for_tool: { from: "master_harvestable_object", field: "nameForTool" }
+  spawn_interval: { from: "master_harvestable_object", field: "spawnInterval" }
+  harvestable_count_before_completing: { from: "master_harvestable_object", field: "harvestableCountBeforeCompleting" }
+  drop_id: { from: "master_harvestable_object", field: "dropId" }
+  expertise: { from: "master_harvestable_object", field: "expertise" }
+  observation_point: { from: "master_harvestable_object", field: "observationPoint" }
+
+  spawners:
+    type: "list"
+    from: "master_harvestable_object_spawner"
+    link_key: { from: "master_harvestable_object", field: "objectId" }
+    sub_object:
+      world_type: { from_parent: true, field: "worldType" }
+      position_type: { from_parent: true, field: "positionType" }
+      position_x: { from_parent: true, field: "positionX" }
+      position_y: { from_parent: true, field: "positionY" }
+      position_z: { from_parent: true, field: "positionZ" }
+      zone_range: { from_parent: true, field: "zoneRange" }
+      max_spawn_count: { from_parent: true, field: "maxSpawnCount" }
+      spawn_interval: { from_parent: true, field: "spawnInterval" }
+      start_time: { from_parent: true, field: "startTime" }
+      end_time: { from_parent: true, field: "endTime" }
+      probability: { from_parent: true, field: "probability" }
+      rare_object_id: { from_parent: true, field: "rareObjectId" }
+      auto_rare_interval: { from_parent: true, field: "autoRareInterval" }
+      auto_rare_probability: { from_parent: true, field: "autoRareProbability" }
+      work_distance: { from_parent: true, field: "workDistance" }

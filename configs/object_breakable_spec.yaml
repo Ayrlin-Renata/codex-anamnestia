@@ -1,0 +1,251 @@
+# Specification for resolving breakable objects.
+
+sources:
+  - name: "breakable_name_en"
+    type: "manual"
+    data:
+      Tree_Normal_01: "Tree"
+      Rock_Normal_01: "Rock"
+      # Add other name mappings here
+
+  - name: "breakable_name_ja"
+    type: "manual"
+    data:
+      Tree_Normal_01: "木"
+      Rock_Normal_01: "岩"
+      # Add other name mappings here
+
+  - name: "master_breakable_object"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_breakable_object.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "objectId"
+
+  - name: "master_breakable_object_spawner"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_breakable_object_spawner.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "objectId"
+
+  - name: "breakable_name_en"
+    type: "manual"
+    data:
+    - { id: マツの木a, name: "Pine Tree A" }
+    - { id: マツの木b, name: "Pine Tree B" }
+    - { id: マツの木a色違い, name: "Pine Tree A Colored" }
+    - { id: マツの木b色違い, name: "Pine Tree B Colored" }
+    - { id: ナラの木, name: "Oak Tree" }
+    - { id: ナラの木色違い, name: "Oak Tree Colored" }
+    - { id: ナラの木森林a, name: "Oak Tree Forest A" }
+    - { id: ナラの木森林b, name: "Oak Tree Forest B" }
+    - { id: ナラの木森林c, name: "Oak Tree Forest C" }
+    - { id: ブナの木a, name: "Beech Tree A" }
+    - { id: ブナの木b, name: "Beech Tree B" }
+    - { id: ブナの木a色違い, name: "Beech Tree A Colored" }
+    - { id: ブナの木b色違い, name: "Beech Tree B Colored" }
+    - { id: ドクキノコつきの若木, name: "Sapling with Poison Mushroom" }
+    - { id: ハチの巣つきの木, name: "Tree with Beehive" }
+    - { id: リンゴの木, name: "Apple Tree" }
+    - { id: キリットレモンの木, name: "Kirito Lemon Tree" }
+    - { id: 倒木用透明アタリ（仮）, name: "Transparent Marks for Fallen Trees (Tentative)" }
+    - { id: ひび岩M, name: "Cracked Rock M" }
+    - { id: ひび岩L, name: "Cracked Rock L" }
+    - { id: ダンジョンの大岩, name: "Large Rock in Dungeon" }
+    - { id: 破壊岩M, name: "Destroyed Rock M" }
+    - { id: 破壊岩L, name: "Destroyed Rock L" }
+    - { id: 破壊岩S, name: "Destroyed Rock S" }
+    - { id: 粘土塊, name: "Clay Lump" }
+    - { id: 砂岩, name: "Sandstone" }
+    - { id: 銅鉱石岩, name: "Copper Ore Rock" }
+    - { id: 鉄鉱石岩, name: "Iron Ore Rock" }
+    - { id: 銀鉱石テスト, name: "Silver Ore Test" }
+    - { id: 金鉱石岩, name: "Gold Ore Rock" }
+    - { id: 青鉱石テスト, name: "Blue Ore Test" }
+    - { id: 黒曜石テスト, name: "Obsidian Test" }
+    - { id: 水晶原石テスト, name: "Water Crystal Ore Test" }
+    - { id: うるおいベリーの茂み, name: "Moisturizing Berry Bushes" }
+    - { id: PONチェリーの茂み, name: "PON Cherry Bushes" }
+    - { id: ミエルベリーの茂み, name: "Miel Berry Bushes" }
+    - { id: 茂み, name: "Bushes" }
+    - { id: 茂み404, name: "Bushes 404" }
+    - { id: 木箱, name: "Wooden Box" }
+    - { id: 透明岩（宝探し用）, name: "Transparent Rock (for Treasure Hunting)" }
+    - { id: 破壊可能岩404-1, name: "Destructible Rock 404-1" }
+    - { id: 破壊可能岩404-2, name: "Destructible Rock 404-2" }
+    - { id: ブナの木A_pla, name: "Beech Tree A_pla" }
+    - { id: ブナの木B_pla, name: "Beech Tree B_pla" }
+    - { id: ナラの木A_pla, name: "Oak Tree A_pla" }
+    - { id: ナラの木B_pla, name: "Oak Tree B_pla" }
+    - { id: マツの木A_pla, name: "Pine Tree A_pla" }
+    - { id: マツの木B_pla, name: "Pine Tree B_pla" }
+    - { id: beの木_pla, name: "Be Tree_pla" }
+    - { id: piの木_pla, name: "Pi Tree_pla" }
+    - { id: ハチの巣つきの木_pla, name: "Tree with Beehive_pla" }
+    - { id: リンゴの木_pla, name: "Apple Tree_pla" }
+    - { id: キリットレモンの木_pla, name: "Kiritto Lemon Tree_pla" }
+    - { id: 破壊岩S_b, name: "Destructible Rock S_b" }
+    - { id: 破壊岩M_b, name: "Destructible Rock M_b" }
+    - { id: 破壊岩L_b, name: "Destructible Rock L_b" }
+    - { id: 破壊岩L_c, name: "Destructible Rock L_c" }
+    - { id: ブッシュ_pla, name: "Bush_pla" }
+    - { id: pla_dhb_bonfirebf_a01, name: "pla_dhb_ bonfirebf_a01" }
+    - { id: pla_dhb_basebf_b01, name: "pla_dhb_basebf_b01" }
+    - { id: pla_dhb_barricadebf_a01, name: "pla_dhb_barricadebf_a01" }
+    - { id: pla_dhb_barrelbf_a01, name: "pla_dhb_barrelbf_a01" }
+    - { id: pla_dhb_branchbf_a01, name: "pla_dhb_branchbf_a01" }
+    - { id: pla_dhb_cedarbf_a01, name: "pla_dhb_cedarbf_a01" }
+    - { id: pla_dhb_ivybf_a01, name: "pla_dhb_ivybf_a01" }
+    - { id: pla_dhb_objbf_a01, name: "pla_dhb_objbf_a01" }
+    - { id: pla_dhb_roastingstandbf_a01, name: "pla_dhb_roastingstandbf_a01" }
+    - { id: pla_dhb_basebf_a01, name: "pla_dhb_basebf_a01" }
+    - { id: pla_dhb_roastingstandbf_b01, name: "pla_dhb_roastingstandbf_b01" }
+    - { id: pla_dhb_rockbf_a01, name: "pla_dhb_rockbf_a01" }
+    - { id: pla_dhb_strawbf_a01, name: "pla_dhb_strawbf_a01" }
+    - { id: pla_dhb_tarpbf_l_a01, name: "pla_dhb_tarp bf_l_a01" }
+    - { id: pla_dhb_tarpbf_l_b01, name: "pla_dhb_tarpbf_l_b01" }
+    - { id: pla_dhb_tarpbf_s_a01, name: "pla_dhb_tarpbf_s_a01" }
+    - { id: pla_dhb_tentbf_l_a01, name: "pla_dhb_tentbf_l_a01" }
+    - { id: pla_dhb_tentbf_s_a01, name: "pla_dhb_tentbf_s_a01" }
+    - { id: pla_dhb_watchtowerbf_a01, name: "pla_dhb_watchtowerbf_a01" }
+    - { id: 銅鉱石岩404, name: "Copper Ore Rock 404" }
+    - { id: 鉄鉱石岩404, name: "Iron Ore Rock 404" }
+    - { id: 金鉱石岩404, name: "Gold Mine Stone Rock 404" }
+    strategy: "lookup" 
+    key: "id"
+
+  - name: "breakable_name_ja"
+    type: "manual"
+    data:
+    - { id: マツの木a, name: "マツの木a" }
+    - { id: マツの木b, name: "マツの木b" }
+    - { id: マツの木a色違い, name: "マツの木a色違い" }
+    - { id: マツの木b色違い, name: "マツの木b色違い" }
+    - { id: ナラの木, name: "ナラの木" }
+    - { id: ナラの木色違い, name: "ナラの木色違い" }
+    - { id: ナラの木森林a, name: "ナラの木森林a" }
+    - { id: ナラの木森林b, name: "ナラの木森林b" }
+    - { id: ナラの木森林c, name: "ナラの木森林c" }
+    - { id: ブナの木a, name: "ブナの木a" }
+    - { id: ブナの木b, name: "ブナの木b" }
+    - { id: ブナの木a色違い, name: "ブナの木a色違い" }
+    - { id: ブナの木b色違い, name: "ブナの木b色違い" }
+    - { id: ドクキノコつきの若木, name: "ドクキノコつきの若木" }
+    - { id: ハチの巣つきの木, name: "ハチの巣つきの木" }
+    - { id: リンゴの木, name: "リンゴの木" }
+    - { id: キリットレモンの木, name: "キリットレモンの木" }
+    - { id: 倒木用透明アタリ（仮）, name: "倒木用透明アタリ（仮）" }
+    - { id: ひび岩M, name: "ひび岩M" }
+    - { id: ひび岩L, name: "ひび岩L" }
+    - { id: ダンジョンの大岩, name: "ダンジョンの大岩" }
+    - { id: 破壊岩M, name: "破壊岩M" }
+    - { id: 破壊岩L, name: "破壊岩L" }
+    - { id: 破壊岩S, name: "破壊岩S" }
+    - { id: 粘土塊, name: "粘土塊" }
+    - { id: 砂岩, name: "砂岩" }
+    - { id: 銅鉱石岩, name: "銅鉱石岩" }
+    - { id: 鉄鉱石岩, name: "鉄鉱石岩" }
+    - { id: 銀鉱石テスト, name: "銀鉱石テスト" }
+    - { id: 金鉱石岩, name: "金鉱石岩" }
+    - { id: 青鉱石テスト, name: "青鉱石テスト" }
+    - { id: 黒曜石テスト, name: "黒曜石テスト" }
+    - { id: 水晶原石テスト, name: "水晶原石テスト" }
+    - { id: うるおいベリーの茂み, name: "うるおいベリーの茂み" }
+    - { id: PONチェリーの茂み, name: "PONチェリーの茂み" }
+    - { id: ミエルベリーの茂み, name: "ミエルベリーの茂み" }
+    - { id: 茂み, name: "茂み" }
+    - { id: 茂み404, name: "茂み404" }
+    - { id: 木箱, name: "木箱" }
+    - { id: 透明岩（宝探し用）, name: "透明岩（宝探し用）" }
+    - { id: 破壊可能岩404-1, name: "破壊可能岩404-1" }
+    - { id: 破壊可能岩404-2, name: "破壊可能岩404-2" }
+    - { id: ブナの木A_pla, name: "ブナの木A_pla" }
+    - { id: ブナの木B_pla, name: "ブナの木B_pla" }
+    - { id: ナラの木A_pla, name: "ナラの木A_pla" }
+    - { id: ナラの木B_pla, name: "ナラの木B_pla" }
+    - { id: マツの木A_pla, name: "マツの木A_pla" }
+    - { id: マツの木B_pla, name: "マツの木B_pla" }
+    - { id: beの木_pla, name: "beの木_pla" }
+    - { id: piの木_pla, name: "piの木_pla" }
+    - { id: ハチの巣つきの木_pla, name: "ハチの巣つきの木_pla" }
+    - { id: リンゴの木_pla, name: "リンゴの木_pla" }
+    - { id: キリットレモンの木_pla, name: "キリットレモンの木_pla" }
+    - { id: 破壊岩S_b, name: "破壊岩S_b" }
+    - { id: 破壊岩M_b, name: "破壊岩M_b" }
+    - { id: 破壊岩L_b, name: "破壊岩L_b" }
+    - { id: 破壊岩L_c, name: "破壊岩L_c" }
+    - { id: ブッシュ_pla, name: "ブッシュ_pla" }
+    - { id: pla_dhb_bonfirebf_a01, name: "pla_dhb_bonfirebf_a01" }
+    - { id: pla_dhb_basebf_b01, name: "pla_dhb_basebf_b01" }
+    - { id: pla_dhb_barricadebf_a01, name: "pla_dhb_barricadebf_a01" }
+    - { id: pla_dhb_barrelbf_a01, name: "pla_dhb_barrelbf_a01" }
+    - { id: pla_dhb_branchbf_a01, name: "pla_dhb_branchbf_a01" }
+    - { id: pla_dhb_cedarbf_a01, name: "pla_dhb_cedarbf_a01" }
+    - { id: pla_dhb_ivybf_a01, name: "pla_dhb_ivybf_a01" }
+    - { id: pla_dhb_objbf_a01, name: "pla_dhb_objbf_a01" }
+    - { id: pla_dhb_roastingstandbf_a01, name: "pla_dhb_roastingstandbf_a01" }
+    - { id: pla_dhb_basebf_a01, name: "pla_dhb_basebf_a01" }
+    - { id: pla_dhb_roastingstandbf_b01, name: "pla_dhb_roastingstandbf_b01" }
+    - { id: pla_dhb_rockbf_a01, name: "pla_dhb_rockbf_a01" }
+    - { id: pla_dhb_strawbf_a01, name: "pla_dhb_strawbf_a01" }
+    - { id: pla_dhb_tarpbf_l_a01, name: "pla_dhb_tarpbf_l_a01" }
+    - { id: pla_dhb_tarpbf_l_b01, name: "pla_dhb_tarpbf_l_b01" }
+    - { id: pla_dhb_tarpbf_s_a01, name: "pla_dhb_tarpbf_s_a01" }
+    - { id: pla_dhb_tentbf_l_a01, name: "pla_dhb_tentbf_l_a01" }
+    - { id: pla_dhb_tentbf_s_a01, name: "pla_dhb_tentbf_s_a01" }
+    - { id: pla_dhb_watchtowerbf_a01, name: "pla_dhb_watchtowerbf_a01" }
+    - { id: 銅鉱石岩404, name: "銅鉱石岩404" }
+    - { id: 鉄鉱石岩404, name: "鉄鉱石岩404" }
+    - { id: 金鉱石岩404, name: "金鉱石岩404" }
+    strategy: "lookup" 
+    key: "id"
+
+primary_source: "master_breakable_object"
+
+output_structure:
+  id: { from: "master_breakable_object", field: "objectId" }
+  name_en: { from: "breakable_name_en", link_key: { from: "master_breakable_object", field: "nameForTool" }, field: "name" }
+  name_ja: { from: "breakable_name_ja", link_key: { from: "master_breakable_object", field: "nameForTool" }, field: "name" }
+
+  # Direct fields from the primary source
+  system_type: { from: "master_breakable_object", field: "systemType" }
+  name_for_tool: { from: "master_breakable_object", field: "nameForTool" }
+  object_type: { from: "master_breakable_object", field: "objectType" }
+  spawn_interval: { from: "master_breakable_object", field: "spawnInterval" }
+  health: { from: "master_breakable_object", field: "health" }
+  damage_required_for_drop: { from: "master_breakable_object", field: "damageRequiredForDrop" }
+  suitable_tool_category_name: { from: "master_breakable_object", field: "suitableToolCategoryName" }
+  suitable_rank: { from: "master_breakable_object", field: "suitableRank" }
+  can_use_unsuitable: { from: "master_breakable_object", field: "canUseUnsuitable" }
+  completed_drop_count: { from: "master_breakable_object", field: "completedDropCount" }
+  expertise: { from: "master_breakable_object", field: "expertise" }
+  observation_point: { from: "master_breakable_object", field: "observationPoint" }
+  suitable_drop_id: { from: "master_breakable_object", field: "suitableDropId" }
+  suitable_drop_id_ex1: { from: "master_breakable_object", field: "suitableDropIdEx1" }
+  suitable_drop_id_ex2: { from: "master_breakable_object", field: "suitableDropIdEx2" }
+  suitable_drop_id_ex3: { from: "master_breakable_object", field: "suitableDropIdEx3" }
+  suitable_drop_id_ex4_over: { from: "master_breakable_object", field: "suitableDropIdEx4over" }
+
+  spawners:
+    type: "list"
+    from: "master_breakable_object_spawner"
+    link_key: { from: "master_breakable_object", field: "objectId" }
+    sub_object:
+      world_type: { from_parent: true, field: "worldType" }
+      position_type: { from_parent: true, field: "positionType" }
+      position_x: { from_parent: true, field: "positionX" }
+      position_y: { from_parent: true, field: "positionY" }
+      position_z: { from_parent: true, field: "positionZ" }
+      zone_range: { from_parent: true, field: "zoneRange" }
+      max_spawn_count: { from_parent: true, field: "maxSpawnCount" }
+      spawn_interval: { from_parent: true, field: "spawnInterval" }
+      start_time: { from_parent: true, field: "startTime" }
+      end_time: { from_parent: true, field: "endTime" }
+      probability: { from_parent: true, field: "probability" }
+      rare_object_id: { from_parent: true, field: "rareObjectId" }
+      auto_rare_interval: { from_parent: true, field: "autoRareInterval" }
+      auto_rare_probability: { from_parent: true, field: "autoRareProbability" }
+      work_distance: { from_parent: true, field: "workDistance" }

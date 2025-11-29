@@ -1,0 +1,711 @@
+# Specification for resolving a union of all item types.
+
+resolution_strategy: "union"
+
+# List of all sources that contain primary item definitions.
+# The pipeline will gather all unique IDs from these sources.
+union_sources:
+  - { name: "master_item_common", id_field: "itemId" }
+  - { name: "master_accessory", id_field: "accessoryId" }
+  - { name: "master_armor", id_field: "armorId" }
+  - { name: "master_bullet", id_field: "bulletId" }
+  - { name: "master_cultivation_fertilizer", id_field: "itemId" }
+  - { name: "master_element", id_field: "id" }
+  - { name: "master_food", id_field: "foodId" }
+  - { name: "master_implement", id_field: "implementId" }
+  - { name: "master_material", id_field: "materialId" }
+  - { name: "master_point_book", id_field: "id" }
+  - { name: "master_skill_book", id_field: "id" }
+  - { name: "master_smelting_fuel", id_field: "fuelItemId" }
+  - { name: "master_tool", id_field: "toolId" }
+  - { name: "master_trap", id_field: "trapId" }
+  - { name: "master_vehicle_item", id_field: "itemId" }
+  - { name: "master_weapon", id_field: "weaponId" }
+  - { name: "master_housing_piece", id_field: "housingPieceId" }
+
+# Full definition of all data sources required for this spec.
+sources:
+  - { name: "master_item_common", type: "local_file", path_type: "survival", path: "master_item_common.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "itemId" }
+  - { name: "master_accessory", type: "local_file", path_type: "survival", path: "master_accessory.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "accessoryId" }
+  - { name: "master_armor", type: "local_file", path_type: "survival", path: "master_armor.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "armorId" }
+  - { name: "master_bullet", type: "local_file", path_type: "survival", path: "master_bullet.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "bulletId" }
+  - { name: "master_cultivation_fertilizer", type: "local_file", path_type: "survival", path: "master_cultivation_fertilizer.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "itemId" }
+  - { name: "master_element", type: "local_file", path_type: "survival", path: "master_element.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "id" }
+  - { name: "master_food", type: "local_file", path_type: "survival", path: "master_food.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "foodId" }
+  - { name: "master_implement", type: "local_file", path_type: "survival", path: "master_implement.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "implementId" }
+  - { name: "master_material", type: "local_file", path_type: "survival", path: "master_material.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "materialId" }
+  - { name: "master_point_book", type: "local_file", path_type: "survival", path: "master_point_book.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "id" }
+  - { name: "master_skill_book", type: "local_file", path_type: "survival", path: "master_skill_book.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "id" }
+  - { name: "master_smelting_fuel", type: "local_file", path_type: "survival", path: "master_smelting_fuel.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "fuelItemId" }
+  - { name: "master_tool", type: "local_file", path_type: "survival", path: "master_tool.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "toolId" }
+  - { name: "master_trap", type: "local_file", path_type: "survival", path: "master_trap.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "trapId" }
+  - { name: "master_vehicle_item", type: "local_file", path_type: "survival", path: "master_vehicle_item.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "itemId" }
+  - { name: "master_weapon", type: "local_file", path_type: "survival", path: "master_weapon.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "weaponId" }
+  - { name: "master_housing_piece", type: "local_file", path_type: "survival", path: "master_housing_piece.dat", decoder: "decode_survival_dat", strategy: "lookup", key: "housingPieceId" }
+
+  - name: "master_text_EN"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_text_EN.dat"
+    decoder: "decode_survival_dat"
+
+  - name: "master_text_JA"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_text_JA.dat"
+    decoder: "decode_survival_dat"
+
+output_structure:
+  id: { from_context: "union_id" }
+
+  category_id:
+    coalesce:
+      - { from: master_item_common, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_accessory, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_armor, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_bullet, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_element, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_food, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_implement, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_material, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_point_book, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_skill_book, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_tool, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_trap, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_vehicle_item, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_weapon, link_key: { from_context: "union_id" }, field: categoryId }
+      - { from: master_housing_piece, link_key: { from_context: "union_id" }, field: categoryId }
+
+  name_en:
+    coalesce:
+      - { from: master_text_EN, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_bullet, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_element, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_food, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_implement, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_material, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_point_book, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_skill_book, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_tool, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_trap, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_vehicle_item, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_weapon, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_housing_piece, link_key: { from_context: "union_id" }, field: nameKey } }
+
+  name_ja:
+    coalesce:
+      - { from: master_text_JA, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_bullet, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_element, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_food, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_implement, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_material, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_point_book, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_skill_book, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_tool, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_trap, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_vehicle_item, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_weapon, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_housing_piece, link_key: { from_context: "union_id" }, field: nameKey } }
+
+  description_en:
+    coalesce:
+      - { from: master_text_EN, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_EN, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_EN, link_key: { from: master_bullet, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_EN, link_key: { from: master_element, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_food, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_EN, link_key: { from: master_implement, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_EN, link_key: { from: master_material, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_EN, link_key: { from: master_point_book, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_skill_book, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_tool, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_trap, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_EN, link_key: { from: master_vehicle_item, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_weapon, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_EN, link_key: { from: master_housing_piece, link_key: { from_context: "union_id" }, field: descriptionKey } }
+
+  description_ja:
+    coalesce:
+      - { from: master_text_JA, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_bullet, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_element, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_food, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_implement, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_material, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_point_book, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_skill_book, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_tool, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_trap, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_vehicle_item, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_JA, link_key: { from: master_weapon, link_key: { from_context: "union_id" }, field: descriptionKey } }
+      - { from: master_text_JA, link_key: { from: master_housing_piece, link_key: { from_context: "union_id" }, field: descriptionKey } }
+
+  # --- Conditional Sub-Objects ---
+
+  accessory_details:
+    type: object
+    condition:
+      source: master_accessory
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      accessory_type:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "accessoryType"
+      item_rank:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      durable_value:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "durableValue"
+      quality_durable_value:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "qualityDurableValue"
+      lose_broken_item:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "loseBrokenItem"
+      defense:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "defense"
+      magic_defense:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "magicDefense"
+      quality_defense:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "qualityDefense"
+      quality_magic_defense:
+        from: master_accessory
+        link_key: { from_context: "union_id" }
+        field: "qualityMagicDefense"
+
+  armor_details:
+    type: object
+    condition:
+      source: master_armor
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      armor_type:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "armorType"
+      item_rank:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      durable_value:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "durableValue"
+      quality_durable:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "qualityDurable"
+      lose_broken_item:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "loseBrokenItem"
+      defense_power:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "defensePower"
+      magic_defense:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "magicDefense"
+      main_type_resistance:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "mainTypeResistance"
+      sub_type_resistance:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "subTypeResistance"
+      damage_avoidance:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "damageAvoidance"
+      quality_defense_power:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "qualityDefensePower"
+      quality_magic_defense:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "qualityMagicDefense"
+      quality_main_type_resistance:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "qualityMainTypeResistance"
+      quality_sub_type_resistance:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "qualitySubTypeResistance"
+      quality_damage_avoidance:
+        from: master_armor
+        link_key: { from_context: "union_id" }
+        field: "qualityDamageAvoidance"
+
+  bullet_details:
+    type: object
+    condition:
+      source: master_bullet
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_bullet
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_bullet
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_bullet
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_bullet
+        link_key: { from_context: "union_id" }
+        field: "stack"
+
+  element_details:
+    type: object
+    condition:
+      source: master_element
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_element
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_element
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_element
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_element
+        link_key: { from_context: "union_id" }
+        field: "stack"
+
+  food_details:
+    type: object
+    condition:
+      source: master_food
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "stack"
+      food_point:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "foodPoint"
+      water_point:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "waterPoint"
+      cool_down:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "coolDown"
+      freshness:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "freshness"
+      return_item_id:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "returnItemId"
+      change_item_id:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "changeItemId"
+      food_point:
+        from: master_food
+        link_key: { from_context: "union_id" }
+        field: "foodPoint"
+
+  housing_piece_details:
+    type: object
+    condition:
+      source: master_housing_piece
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      piece_type:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "pieceType"
+      item_rank:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "stack"
+      hp:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "hp"
+      physics_defense:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "physicsDefense"
+      magic_defense:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "magicDefense"
+      mood:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "mood"
+      mood_limit_count:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "moodLimitCount"
+      mood_type:
+        from: master_housing_piece
+        link_key: { from_context: "union_id" }
+        field: "moodType"
+
+  implement_details:
+    type: object
+    condition:
+      source: master_implement
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_implement
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_implement
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_implement
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_implement
+        link_key: { from_context: "union_id" }
+        field: "stack"
+      durable_value:
+        from: master_implement
+        link_key: { from_context: "union_id" }
+        field: "durableValue"
+
+  material_details:
+    type: object
+    condition:
+      source: master_material
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_material
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_material
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_material
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_material
+        link_key: { from_context: "union_id" }
+        field: "stack"
+      freshness:
+        from: master_material
+        link_key: { from_context: "union_id" }
+        field: "freshness"
+      change_item_id:
+        from: master_material
+        link_key: { from_context: "union_id" }
+        field: "changeItemId"
+
+  point_book_details:
+    type: object
+    condition:
+      source: master_point_book
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_point_book
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_point_book
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_point_book
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_point_book
+        link_key: { from_context: "union_id" }
+        field: "stack"
+
+  skill_book_details:
+    type: object
+    condition:
+      source: master_skill_book
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_skill_book
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_skill_book
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_skill_book
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_skill_book
+        link_key: { from_context: "union_id" }
+        field: "stack"
+
+  tool_details:
+    type: object
+    condition:
+      source: master_tool
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      tool_type:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "toolType"
+      tool_category_id:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "toolCategoryId"
+      item_rank:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      durable_value:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "durableValue"
+      lose_broken_item:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "loseBrokenItem"
+      attack:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "attack"
+      energy:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "energy"
+      breaking:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "breaking"
+      drop_multiplier:
+        from: master_tool
+        link_key: { from_context: "union_id" }
+        field: "dropMultiplier"
+
+  trap_details:
+    type: object
+    condition:
+      source: master_trap
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_trap
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_trap
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_trap
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_trap
+        link_key: { from_context: "union_id" }
+        field: "stack"
+      hp:
+        from: master_trap
+        link_key: { from_context: "union_id" }
+        field: "hp"
+      defense:
+        from: master_trap
+        link_key: { from_context: "union_id" }
+        field: "defense"
+      magic_defense:
+        from: master_trap
+        link_key: { from_context: "union_id" }
+        field: "magicDefense"
+
+  vehicle_item_details:
+    type: object
+    condition:
+      source: master_vehicle_item
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_vehicle_item
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      item_rank:
+        from: master_vehicle_item
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_vehicle_item
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_vehicle_item
+        link_key: { from_context: "union_id" }
+        field: "stack"
+
+  weapon_details:
+    type: object
+    condition:
+      source: master_weapon
+      key: { from_context: "union_id" }
+      exists: true
+    fields:
+      system_type:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "systemType"
+      weapon_type_id:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "weaponTypeId"
+      item_rank:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "itemRank"
+      weight:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "weight"
+      stack:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "stack"
+      durable_value:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "durableValue"
+      quality_durable:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "qualityDurable"
+      lose_broken_item:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "loseBrokenItem"
+      attack_power:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "attackPower"
+      sub_element:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "subElement"
+      sub_element_attack_power:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "subElementAttackPower"
+      quality_attack_power:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "qualityAttackPower"
+      override_element:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "overrideElement"
+      enchant_enable:
+        from: master_weapon
+        link_key: { from_context: "union_id" }
+        field: "enchantEnable"

@@ -1,0 +1,6 @@
+# Global configuration for the codex-anamnestia data pipeline.
+
+# Base paths for different types of local data sources.
+# Please use absolute paths.
+local_data_paths:
+  survival: "%userprofile%/AppData/LocalLow/Cover/Holoearth/1" 

@@ -1,0 +1,247 @@
+# Specification for resolving creature data.
+
+sources:
+  - name: "master_creature"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "creatureId"
+
+  - name: "master_creature_reaction_items"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_reaction_items.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureId"
+
+  - name: "master_creature_element_resistance"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_element_resistance.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureId"
+
+  - name: "master_creature_drop"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_drop.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureId"
+
+  - name: "master_creature_spawner_creatures"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_spawner_creatures.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureId"
+
+  - name: "master_creature_spawner"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_spawner.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "id"
+
+  - name: "master_creature_spawner_spawn_positions"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_spawner_spawn_positions.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "spawnerId"
+
+  - name: "master_static_territory"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_static_territory.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureSpawnerId"
+
+  - name: "master_biome_territory"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_biome_territory.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureSpawnerId"
+
+  - name: "master_summon_territory"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_summon_territory.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureSpawnerId"
+
+  - name: "master_text_EN"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_text_EN.dat"
+    decoder: "decode_survival_dat"
+
+  - name: "master_text_JA"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_text_JA.dat"
+    decoder: "decode_survival_dat"
+
+primary_source: "master_creature"
+
+output_structure:
+  id: { from: "master_creature", field: "creatureId" }
+  name_en: { from: "master_text_EN", link_key: { from: "master_creature", field: "nameKey" }}
+  name_ja: { from: "master_text_JA", link_key: { from: "master_creature", field: "nameKey" }}
+  species_id: { from: "master_creature", field: "speciesId" }
+
+  weight: { from: "master_creature", field: "weight" }
+
+  min_health: { from: "master_creature", field: "minHealth" }
+  max_health: { from: "master_creature", field: "maxHealth" }
+
+  min_attack_power: { from: "master_creature", field: "minAttackPower" }
+  max_attack_power: { from: "master_creature", field: "maxAttackPower" }
+
+  min_defense_power: { from: "master_creature", field: "minDefencePower" }
+  max_defense_power: { from: "master_creature", field: "maxDefencePower" }
+  min_magic_defense: { from: "master_creature", field: "minMagicDefence" }
+  max_magic_defense: { from: "master_creature", field: "maxMagicDefence" }
+  min_robustness: { from: "master_creature", field: "minRobustness" }
+  max_robustness: { from: "master_creature", field: "maxRobustness" }
+  min_down_resistance: { from: "master_creature", field: "minDownResistance" }
+  max_down_resistance: { from: "master_creature", field: "maxDownResistance" }
+  down_duration: { from: "master_creature", field: "downDuration" }
+
+  knockback_time_s: { from: "master_creature", field: "knockbackTimeS" }
+  knockback_time_m: { from: "master_creature", field: "knockbackTimeM" }
+  knockback_time_l: { from: "master_creature", field: "knockbackTimeL" }
+  ignore_knockback_s: { from: "master_creature", field: "ignoreKnockbackS" }
+  ignore_knockback_m: { from: "master_creature", field: "ignoreKnockbackM" }
+  ignore_knockback_l: { from: "master_creature", field: "ignoreKnockbackL" }
+
+  min_experience: { from: "master_creature", field: "minExperience" }
+  max_experience: { from: "master_creature", field: "maxExperience" }
+  min_observation_point: { from: "master_creature", field: "minObservationPoint" }
+  max_observation_point: { from: "master_creature", field: "maxObservationPoint" }
+
+  sight_distance: { from: "master_creature", field: "sightDistance" }
+  sight_angle: { from: "master_creature", field: "sightAngle" }
+  visible_time: { from: "master_creature", field: "visibleTime" }
+  hate_distance_low: { from: "master_creature", field: "hateDistanceLow" }
+  hate_distance_middle: { from: "master_creature", field: "hateDistanceMiddle" }
+  hate_distance_strong: { from: "master_creature", field: "hateDistanceStrong" }
+  vigilance_ratio_out: { from: "master_creature", field: "vigilanceRatioOut" }
+  vigilance_ratio_low: { from: "master_creature", field: "vigilanceRatioLow" }
+  vigilance_ratio_middle: { from: "master_creature", field: "vigilanceRatioMiddle" }
+  vigilance_ratio_strong: { from: "master_creature", field: "vigilanceRatioStrong" }
+
+  reaction_items:
+    type: "list"
+    from: "master_creature_reaction_items"
+    link_key: { from: "master_creature", field: "creatureId" }
+    sub_object: 
+      item_category: { from_parent: true, field: "reactionItemCategory"}
+
+  resistances:
+    type: "list"
+    from: "master_creature_element_resistance"
+    link_key: { from: "master_creature", field: "creatureId" }
+    sub_object:
+      element: { from_parent: true, field: "element" }
+      resistance: { from_parent: true, field: "resistance" }
+
+  drops:
+    type: "list"
+    from: "master_creature_drop"
+    link_key: { from: "master_creature", field: "creatureId" }
+    sub_object:
+      drop_id: { from_parent: true, field: "dropId" }
+      obtain_type: { from_parent: true, field: "obtainType" }
+      creature_min_level: { from_parent: true, field: "creatureMinLevel" }
+      creature_max_level: { from_parent: true, field: "creatureMaxLevel" }
+      mix_drop_count: { from_parent: true, field: "mixDropCount" }
+      max_drop_count: { from_parent: true, field: "maxDropCount" }
+
+  spawners:
+    type: "list"
+    from: "master_creature_spawner_creatures"
+    link_key: { from: "master_creature", field: "creatureId" }
+    sub_object:
+      creature_min_level: { from_parent: true, field: "creatureMinLevel" }
+      creature_max_level: { from_parent: true, field: "creatureMaxLevel" }
+      weight: { from_parent: true, field: "weight" }
+      
+      max_spawn_count:
+        from: "master_creature_spawner"
+        link_key: { from_parent: true, field: "spawnerId" }
+        field: "maxSpawnCount"
+
+      spawn_interval:
+        from: "master_creature_spawner"
+        link_key: { from_parent: true, field: "spawnerId" }
+        field: "spawnInterval"
+
+      is_allowed_house_spawn:
+        from: "master_creature_spawner"
+        link_key: { from_parent: true, field: "spawnerId" }
+        field: "isAllowedHouseSpawn"
+
+      reactive_weather_ids:
+        type: "list"
+        from: "master_creature_spawner"
+        link_key: { from_parent: true, field: "spawnerId" }
+        field: "reactiveWeatherIds" 
+
+      spawn_positions:
+        type: "list"
+        from: "master_creature_spawner_spawn_positions"
+        link_key: { from_parent: true, field: "spawnerId" }
+        sub_object:
+          x: { from_parent: true, field: "positionX"}
+          y: { from_parent: true, field: "positionY"}
+          z: { from_parent: true, field: "positionZ"}
+
+      static_territory:
+        type: "list"
+        from: "master_static_territory"
+        link_key: { from_parent: true, field: "spawnerId" }
+        sub_object:
+          world_type: { from_parent: true, field: "worldType"}
+          x: { from_parent: true, field: "positionX"}
+          y: { from_parent: true, field: "positionY"}
+          z: { from_parent: true, field: "positionZ"}
+          detection_distance: { from_parent: true, field: "detectionDistance"}
+          lost_distance: { from_parent: true, field: "lostDistance"}
+          limit_distance: { from_parent: true, field: "limitDistance"}
+
+      biome_territory:
+        type: "list"
+        from: "master_biome_territory"
+        link_key: { from_parent: true, field: "spawnerId" }
+        sub_object:
+          world_type: { from_parent: true, field: "worldType"}
+          biome_ids: 
+            from_parent: true
+            field: "biomeIds"
+            transform:
+              type: "split"
+              delimiter: ","
+              as_type: "int"
+
+      summon_territory:
+        type: "list"
+        from: "master_summon_territory"
+        link_key: { from_parent: true, field: "spawnerId" }
+        sub_object:
+          system_type: { from_parent: true, field: "systemType"}
+          battle_limit_time: { from_parent: true, field: "battleLimitTime"}
+          detection_distance: { from_parent: true, field: "detectionDistance"}
+          lost_distance: { from_parent: true, field: "lostDistance"}
+          limit_distance: { from_parent: true, field: "limitDistance"}
