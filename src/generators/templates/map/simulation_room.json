@@ -1,0 +1,18 @@
+{
+	"$schema": "https://holoearth.wiki.gg/extensions/DataMaps/schemas/v17.3.json",
+	"include": [ "Map:Survival Icons" ],
+	"groups": {
+	},
+	"crs": {
+		"topLeft": [ -739, 891 ],
+		"bottomRight": [ 946, -793 ],
+		"order": "xy"
+	},
+	"background": "WorldMapCreta_WorldMapPlain_mask_frame.png",
+	"settings": {
+		"enableSearch": true,
+		"showCoordinates": true
+	},
+	"markers": {
+	}
+}

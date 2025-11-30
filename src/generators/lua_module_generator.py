@@ -17,7 +17,7 @@ def to_lua_table(obj, indent=2):
                 key_str = key
             else:
                 key_str = f'["{key}"]'
-            parts.append(f'{{' ' * (indent + 2)}{key_str} = {to_lua_table(value, indent + 2)}')
+            parts.append(f'{" " * (indent + 2)}{key_str} = {to_lua_table(value, indent + 2)}')
         return '{{\n' + ',\n'.join(parts) + '\n' + ' ' * indent + '}'
     elif isinstance(obj, list):
         parts = [to_lua_table(item, indent + 2) for item in obj]

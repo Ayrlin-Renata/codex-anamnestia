@@ -1,22 +1,25 @@
 # This file maps local Lua module files to their destination on the wiki.
 
-prefix: "Module:Data"
 history_prefix: "/History"
 meta_page: "/meta.json"
 
 wiki:
-  host: "holoearth.wiki.gg" # e.g., en.wikipedia.org
+  host: "holoearth.wiki.gg"
   path: "/"
 
-# The key is the local filename in staging/modules/
-# The value is the paprtial page name on the wiki.
+module_groups:
+  - prefix: "Module:Data"
+    modules:
+      utils.lua: "/Utils"
+      creature_util.lua: "/Creature/Util"
+      creature_ui.lua: "/Creature/UI"
 
-modules:
-  utils.lua: "/Utils"
-  creature_util.lua: "/Creature/Util"
-  creature_ui.lua: "/Creature/UI"
+maps:
+  - file: "survival_icons.json"
+    page: "Map:Survival_Icons"
+  - file: "simulation_room.json"
+    page: "Map:Simulation_Room"
 
-# This would map resolved JSON data directly to wiki pages, if desired.
 data:
   creature_spec_resolved.json: "/Creature.json"
   drop_creature_spec_resolved.json: "/Drop_Creature.json"

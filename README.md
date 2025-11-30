@@ -19,7 +19,13 @@ Set `WIKI_USERNAME` and `WIKI_PASSWORD`.
 ## Usage
 
 ### Update & Upload
-    `py main.py --all-specs --action full --version VERSION_NUMBER_HERE`
+1. 
+
+Edit `src/generators/templates/meta.json` version number.
+
+2.
+
+Run `py main.py --all-specs --action full --version VERSION_NUMBER_HERE`
 
 ### Flags
 

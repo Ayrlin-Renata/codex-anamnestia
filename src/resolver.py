@@ -171,6 +171,15 @@ def _build_node(context, structure, all_data, level=0):
                 list_items = []
                 
                 for i, item in enumerate(linked_list):
+                    if 'filter' in rule:
+                        filter_rule = rule['filter']
+                        field_to_filter = filter_rule.get('field')
+                        value_to_match = filter_rule.get('value')
+                        
+                        if field_to_filter is None or value_to_match is None:
+                            logging.warning(f"Filter rule for '{key}' is malformed. Skipping filter.")
+                        elif item.get(field_to_filter) != value_to_match:
+                            continue
                     logging.debug(f"  - Building sub-object {i+1}/{len(linked_list)}")
                     list_items.append(_build_node(item, rule['sub_object'], all_data, level + 1))
                 output_node[key] = list_items

@@ -20,7 +20,6 @@ class WikiUploader:
             logging.error(f"{config_path} not found.")
             self.upload_config = {}
         
-        self.prefix = self.upload_config.get('prefix', '')
         self.history_prefix = self.upload_config.get('history_prefix', '/History')
         wiki_config = self.upload_config.get('wiki', {})
         host = wiki_config.get('host')
@@ -42,7 +41,7 @@ class WikiUploader:
             logging.error(f"Login failed: {e}")
             self.site = None
     
-    def _upload_content(self, page_name, content, summary, is_history=False):
+    def _upload_content(self, page_name, prefix, content, summary, is_history=False):
         """
         Helper function to upload content to a single wiki page.
         """
@@ -50,7 +49,7 @@ class WikiUploader:
         if not self.site:
             logging.warning(f"SKIPPING upload to '{page_name}' (no wiki connection)")
             return
-        full_page_name = page_name if is_history else self.prefix + page_name
+        full_page_name = page_name if is_history else prefix + page_name
         logging.info(f"Uploading to '{full_page_name}'...")
         try:
             page = self.site.pages[full_page_name]
@@ -61,39 +60,52 @@ class WikiUploader:
     
     def _upload_modules(self, version, spec_name=None):
         logging.info("--- Uploading Lua modules... ---")
-        module_map = self.upload_config.get('modules', {})
+        module_groups = self.upload_config.get('module_groups', [])
         
-        if not module_map:
-            logging.warning("No module mappings found in upload_config.yaml")
+        if not module_groups:
+            logging.warning("No module_groups found in upload_config.yaml")
             return
-        upload_map = module_map
-        
-        if spec_name:
-            logging.info(f"Filtering module upload for spec: {spec_name}")
-            base_spec_name = spec_name.replace('_spec', '')
-            upload_map = {
-                k: v for k, v in module_map.items()
-                if k.startswith(base_spec_name) or k == 'utils.lua'
-            }
         staging_dir = "staging/modules"
         summary = f"Automated module update for version {version}"
         
-        for local_file, wiki_page_name in upload_map.items():
-            local_path = os.path.join(staging_dir, local_file)
-            try:
-                with open(local_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                self._upload_content(wiki_page_name, content, summary)
-            except FileNotFoundError:
-                logging.error(f"Local file not found: {local_path}")
-            except Exception as e:
-                logging.error(f"Error while processing {local_path}: {e}")
+        for group in module_groups:
+            prefix = group.get('prefix', '')
+            module_map = group.get('modules', {})
+            upload_map = module_map
+            
+            if spec_name:
+                logging.info(f"Filtering module upload for spec: {spec_name}")
+                base_spec_name = spec_name.replace('_spec', '')
+                is_map_spec = spec_name == 'map_location_spec'
+                is_map_group = prefix == 'Map'
+                
+                if is_map_group and not is_map_spec:
+                    continue
+                elif not is_map_group and is_map_spec:
+                    upload_map = {k: v for k, v in module_map.items() if k == 'utils.lua'}
+                elif not is_map_group:
+                    upload_map = {
+                        k: v for k, v in module_map.items()
+                        if k.startswith(base_spec_name) or k == 'utils.lua'
+                    }
+            
+            for local_file, wiki_page_name in upload_map.items():
+                local_path = os.path.join(staging_dir, local_file)
+                try:
+                    with open(local_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    self._upload_content(wiki_page_name, prefix, content, summary)
+                except FileNotFoundError:
+                    logging.warning(f"Local file not found, skipping: {local_path}")
+                except Exception as e:
+                    logging.error(f"Error while processing {local_path}: {e}")
     
     def _upload_meta(self, version):
         logging.info("--- Updating metadata file... ---")
         version_id = version
         meta_page_name = self.upload_config.get('meta_page', '/meta.json')
-        logging.info(f"Updating metadata file: {self.prefix}{meta_page_name}")
+        meta_prefix = "Module:Data"
+        logging.info(f"Updating metadata file: {meta_prefix}{meta_page_name}")
         meta_data = {"versions": [], "codex_added_fields": []}
         try:
             with open('src/generators/templates/meta.json', 'r', encoding='utf-8') as f:
@@ -103,11 +115,12 @@ class WikiUploader:
         
         if version_id not in meta_data['versions']:
             meta_data['versions'].insert(0, version_id)
-        self._upload_content(meta_page_name, json.dumps(meta_data, separators=(',', ':')), f"Add data version {version_id}")
+        self._upload_content(meta_page_name, meta_prefix, json.dumps(meta_data, separators=(',', ':')), f"Add data version {version_id}")
     
     def _upload_data(self, version, spec_name=None):
         logging.info("--- Uploading data files... ---")
         data_map = self.upload_config.get('data', {})
+        data_prefix = "Module:Data"
         
         if not data_map:
             logging.warning("No data mappings found in upload_config.yaml")
@@ -142,11 +155,38 @@ class WikiUploader:
                     id_field = 'id'
                     data_for_lua = {item.get(id_field): item for item in resolved_data if item.get(id_field) is not None}
                     content_to_upload = "return " + to_lua_table(data_for_lua)
-                self._upload_content(wiki_page_name, content_to_upload, summary)
-                history_page_name = f"{self.prefix}{self.history_prefix}/{version_id}{wiki_page_name}"
-                self._upload_content(history_page_name, content_to_upload, summary, is_history=True)
+                self._upload_content(wiki_page_name, data_prefix, content_to_upload, summary)
+                history_page_name = f"{data_prefix}{self.history_prefix}/{version_id}{wiki_page_name}"
+                self._upload_content(history_page_name, data_prefix, content_to_upload, summary, is_history=True)
             except FileNotFoundError:
                 logging.error(f"Local file not found: {local_path}")
+            except Exception as e:
+                logging.error(f"Error while processing {local_path}: {e}")
+    
+    def _upload_maps(self, version, spec_name=None):
+        logging.info("--- Uploading JSON maps... ---")
+        map_config = self.upload_config.get('maps', [])
+        
+        if not map_config:
+            logging.warning("No map mappings found in upload_config.yaml")
+            return
+        staging_dir = "staging/maps"
+        summary = f"Automated map update for version {version}"
+        
+        for map_item in map_config:
+            local_file = map_item.get('file')
+            wiki_page_name = map_item.get('page')
+            
+            if not local_file or not wiki_page_name:
+                logging.warning(f"Skipping invalid map item: {map_item}")
+                continue
+            local_path = os.path.join(staging_dir, local_file)
+            try:
+                with open(local_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                self._upload_content(wiki_page_name, "", content, summary)
+            except FileNotFoundError:
+                logging.warning(f"Local file not found, skipping: {local_path}")
             except Exception as e:
                 logging.error(f"Error while processing {local_path}: {e}")
     
@@ -155,7 +195,7 @@ class WikiUploader:
             logging.error("Upload action requires a version string. Use the --version argument.")
             return
         
-        if upload_target in ['modules', 'data', 'all']:
+        if upload_target in ['modules', 'data', 'maps', 'all']:
             self._upload_meta(version)
         
         if upload_target in ['modules', 'all']:
@@ -163,3 +203,6 @@ class WikiUploader:
         
         if upload_target in ['data', 'all']:
             self._upload_data(version, spec_name=spec_name)
+        
+        if upload_target in ['maps', 'all']:
+            self._upload_maps(version, spec_name=spec_name)

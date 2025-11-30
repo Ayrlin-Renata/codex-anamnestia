@@ -9,6 +9,7 @@ from src.utils.config_loader import load_spec
 from src.transformers.standardizer import standardize_source
 from src.resolver import resolve_data
 from src.generators.lua_module_generator import generate_lua_modules
+from src.generators.json_map_generator import generate_json_maps
 from src.uploaders.wiki_uploader import WikiUploader
 
 def get_extractor(type_name):
@@ -104,6 +105,7 @@ def run_processing_pipeline(spec_name, action, global_config):
                 logging.error(f"Could not find {resolved_path}. Please run with '--action resolve' first.")
                 return
         generate_lua_modules(spec_name, resolved_objects, global_config)
+        generate_json_maps(spec_name, resolved_objects, global_config)
         logging.info("--- Stage 3: Finished ---")
 
 def main():
@@ -111,7 +113,7 @@ def main():
     parser.add_argument('--spec', type=str, help='The name of the specification file to run.')
     parser.add_argument('--all-specs', action='store_true', help='Run the specified action for all spec files.')
     parser.add_argument('--action', type=str, choices=['collect', 'resolve', 'generate-modules', 'upload', 'full'], default='full', help='The action to perform.')
-    parser.add_argument('--upload-target', type=str, choices=['data', 'modules', 'all'], default='all', help="Specify what to upload.")
+    parser.add_argument('--upload-target', type=str, choices=['data', 'modules', 'maps', 'all'], default='all', help="Specify what to upload.")
     parser.add_argument('--version', type=str, help='A specific version string (e.g., game version) for the upload.')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose logging output.')
 
