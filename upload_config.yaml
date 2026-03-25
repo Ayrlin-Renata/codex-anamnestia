@@ -8,11 +8,16 @@ wiki:
   path: "/"
 
 module_groups:
+  - prefix: "Template:"
+    staging_dir: "staging/wikitemplates"
+    modules:
+      Infobox_Creature.wikitext: "Infobox/Creature"
   - prefix: "Module:Data"
     modules:
       utils.lua: "/Utils"
       creature_util.lua: "/Creature/Util"
       creature_ui.lua: "/Creature/UI"
+      item_util.lua: "/Item/Util"
 
 maps:
   - file: "survival_icons.json"

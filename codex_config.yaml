@@ -4,3 +4,4 @@
 # Please use absolute paths.
 local_data_paths:
   survival: "%userprofile%/AppData/LocalLow/Cover/Holoearth/1" 
+  manual: "data/manual"

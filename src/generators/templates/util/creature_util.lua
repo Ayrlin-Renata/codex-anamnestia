@@ -102,5 +102,103 @@ function p.get_drops(creature_id, lang)
     return structured_drops
 end
 
+function p.get_unique_drop_names(creature_id, lang)
+    lang = lang or 'en'
+    local util = get_util()
+    local creature = util.get_entry_by_field("/Creature.json", "id", creature_id, false)
+    if not creature or not creature.drops then
+        return ""
+    end
+
+    local name_set = {}
+    local names = {}
+
+    for _, drop_info in ipairs(creature.drops) do
+        local drop_items = util.get_entries_by_field("/Drop_Creature.json", "drop_id", drop_info.drop_id, false)
+        if drop_items then
+            for _, drop_item in ipairs(drop_items) do
+                if drop_item.item_id ~= 0 then
+                    local item = util.get_entry_by_field("/Item.json", "id", drop_item.item_id, false)
+                    if item then
+                        local name = item['name_' .. lang] or item.name_en
+                        if type(name) == "table" then
+                            name = name.text
+                        end
+                        if name and not name_set[name] then
+                            name_set[name] = true
+                            table.insert(names, "[[" .. name .. "]]")
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    table.sort(names)
+    return table.concat(names, ", ")
+end
+
+--[[
+  General helper to get a creature entry by name or ID.
+--]]
+function p.get_creature_by_name_or_id(identifier)
+    local util = get_util()
+    if not identifier then return nil end
+    if type(identifier) == "string" then
+        identifier = mw.text.trim(identifier)
+    end
+    if identifier == "" then return nil end
+    
+    local creature_data
+    if type(identifier) == "string" and identifier:sub(1, 3):upper() == "ID_" then
+        local creature_id = tonumber(identifier:sub(4))
+        if creature_id then
+            creature_data = util.get_entry_by_field("/Creature.json", "id", creature_id, false)
+        end
+    elseif type(identifier) == "number" then
+        creature_data = util.get_entry_by_field("/Creature.json", "id", identifier, false)
+    else
+        -- Try exact name match across raw and custom fields
+        local search_fields = { "name_en", "name_ja", "name_en_custom", "name_ja_custom" }
+        creature_data = util.get_entry_by_fields("/Creature.json", search_fields, identifier, true)
+    end
+    
+    return creature_data
+end
+
+--[[
+  Returns the display name (Original (Custom)) for a creature.
+--]]
+function p.get_creature_display_name(creature_data, lang)
+    if not creature_data then return "" end
+    lang = lang or 'en'
+    
+    local function resolve(val)
+        if type(val) == "table" then return val.text end
+        return val or ""
+    end
+    
+    local raw = resolve(creature_data['name_' .. lang])
+    if raw == "" and lang ~= 'en' then
+        raw = resolve(creature_data['name_en'])
+    end
+    
+    local custom = resolve(creature_data['name_' .. lang .. '_custom'])
+    if custom == "" and lang ~= 'en' then
+        custom = resolve(creature_data['name_en_custom'])
+    end
+    
+    if custom ~= "" and custom ~= raw then
+        if raw ~= "" then
+            return raw .. " (" .. custom .. ")"
+        else
+            return custom
+        end
+    end
+    
+    if raw ~= "" then return raw end
+    if custom ~= "" then return custom end
+    return "Unknown Creature"
+end
 
 return p

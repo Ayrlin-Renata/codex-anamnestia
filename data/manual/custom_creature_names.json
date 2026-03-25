@@ -1,0 +1,67 @@
+[
+  {
+    "id": 10,
+    "name_en": "Poison Mandragora",
+    "name_ja": "マンドラゴラ（毒）"
+  },
+  {
+    "id": 16,
+    "name_en": "Club Imp",
+    "name_ja": "クラブキャンピー"
+  },
+  {
+    "id": 17,
+    "name_en": "Spear Imp",
+    "name_ja": "槍キャンピー"
+  },
+  {
+    "id": 18,
+    "name_en": "Skeleton Ranger",
+    "name_ja": "スケルトンレンジャー"
+  },
+  {
+    "id": 22,
+    "name_en": "White Chicken",
+    "name_ja": "ニワトリ （白）"
+  },
+  {
+    "id": 26,
+    "name_en": "Flame Mandragora",
+    "name_ja": "マンドラゴラ（火）"
+  },
+  {
+    "id": 28,
+    "name_en": "Watch Club Imp",
+    "name_ja": "クラブキャンピー（監視塔）"
+  },
+  {
+    "id": 29,
+    "name_en": "Bomb Club Imp",
+    "name_ja": "クラブキャンピー（爆弾）"
+  },
+  {
+    "id": 30,
+    "name_en": "Watch Bomb Club Imp",
+    "name_ja": "クラブキャンピー （監視塔爆弾）"
+  },
+  {
+    "id": 102,
+    "name_en": "Stronger Wolf",
+    "name_ja": "オオカミ（強化）"
+  },
+  {
+    "id": 105,
+    "name_en": "Ram",
+    "name_ja": "ヒツジ（強化）"
+  },
+  {
+    "id": 106,
+    "name_en": "Stronger Wild Boar",
+    "name_ja": "ワイルドボア（強化）"
+  },
+  {
+    "id": 120,
+    "name_en": "Stronger Fox Fiend",
+    "name_ja": "ヨウコ（強化）"
+  }
+]

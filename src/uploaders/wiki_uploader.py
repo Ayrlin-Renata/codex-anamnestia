@@ -71,6 +71,7 @@ class WikiUploader:
         for group in module_groups:
             prefix = group.get('prefix', '')
             module_map = group.get('modules', {})
+            current_staging_dir = group.get('staging_dir', staging_dir)
             upload_map = module_map
             
             if spec_name:
@@ -86,11 +87,11 @@ class WikiUploader:
                 elif not is_map_group:
                     upload_map = {
                         k: v for k, v in module_map.items()
-                        if k.startswith(base_spec_name) or k == 'utils.lua'
+                        if k.startswith(base_spec_name) or k == 'utils.lua' or (k.endswith('.wikitext') and base_spec_name in k.lower())
                     }
             
             for local_file, wiki_page_name in upload_map.items():
-                local_path = os.path.join(staging_dir, local_file)
+                local_path = os.path.join(current_staging_dir, local_file)
                 try:
                     with open(local_path, 'r', encoding='utf-8') as f:
                         content = f.read()

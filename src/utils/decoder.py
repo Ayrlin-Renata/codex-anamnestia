@@ -18,3 +18,13 @@ def decode_survival_dat(file_bytes):
     except Exception as e:
         print(f"ERROR: Failed to decrypt and parse data. Reason: {e}")
         return None
+
+def decode_json(file_bytes):
+    """
+    Decodes a standard UTF-8 JSON file.
+    """
+    try:
+        return json.loads(file_bytes.decode('utf-8'))
+    except Exception as e:
+        print(f"ERROR: Failed to parse JSON data. Reason: {e}")
+        return None

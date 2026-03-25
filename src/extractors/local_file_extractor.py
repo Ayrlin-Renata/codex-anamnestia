@@ -44,7 +44,9 @@ class LocalFileExtractor:
                 with open(output_path, 'w', encoding='utf-8') as f:
                     json.dump(decoded_obj, f, indent=2, ensure_ascii=False)
                 logging.debug(f"Saved decoded file to {output_path}")
-            return decoded_obj.get('list', decoded_obj)
+            if isinstance(decoded_obj, dict):
+                return decoded_obj.get('list', decoded_obj)
+            return decoded_obj
         except (AttributeError, ImportError):
             logging.error(f"Could not find decoder function '{decoder_type}' in src.utils.decoder")
             return None

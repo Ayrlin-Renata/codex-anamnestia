@@ -1,0 +1,15 @@
+<includeonly>{{#invoke:Infobox|main
+|kind=creature
+|sep=,
+|image={{#if:{{{Image|}}}|[[File:{{{Image}}}{{!}}300px]]}}
+|sections=Info, Data, Combat Stats, Elemental Resistances, Sight, Spawning, Drops
+|Info=Name,JA Name,ID,Species ID
+|Data=Health,Weight
+|Combat Stats=Attack,Defense,Magic Defense,Robustness,Down Resistance,Knockback
+|Elemental Resistances=Resistances
+|Sight=Sight Distance,Sight Angle,Visible Time,Hate Distance,Vigilance Ratio,Reaction Items
+|Spawning=Levels,Spawner Types
+|Drops=Experience,Observation Points,Drop Items
+}}</includeonly><noinclude>
+[[Category: Infobox template]]
+{{documentation}}</noinclude>

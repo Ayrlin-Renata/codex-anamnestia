@@ -52,3 +52,12 @@ def generate_lua_modules(spec_name, resolved_data, global_config):
     if os.path.exists(utils_template_path) and not os.path.exists(utils_staged_path):
         shutil.copy(utils_template_path, utils_staged_path)
         logging.info("Staged general utils module: utils.lua")
+
+    wikitemplates_dir = os.path.join(template_base_dir, "wikitemplates")
+    staging_wikitemplates_dir = "staging/wikitemplates"
+    os.makedirs(staging_wikitemplates_dir, exist_ok=True)
+    if os.path.exists(wikitemplates_dir):
+        for f in os.listdir(wikitemplates_dir):
+            if f.endswith('.wikitext') and spec_base_name in f.lower():
+                shutil.copy(os.path.join(wikitemplates_dir, f), os.path.join(staging_wikitemplates_dir, f))
+                logging.info(f"Staged wikitext template: {f}")

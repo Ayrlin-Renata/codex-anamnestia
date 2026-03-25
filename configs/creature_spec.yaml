@@ -93,13 +93,32 @@ sources:
     path: "master_text_JA.dat"
     decoder: "decode_survival_dat"
 
+  - name: "custom_creature_names"
+    type: "local_file"
+    path_type: "manual"
+    path: "custom_creature_names.json"
+    decoder: "decode_json"
+    strategy: "lookup"
+    key: "id"
+
+  - name: "creature_images"
+    type: "local_file"
+    path_type: "manual"
+    path: "creature_images.json"
+    decoder: "decode_json"
+    strategy: "lookup"
+    key: "id"
+
 primary_source: "master_creature"
 
 output_structure:
   id: { from: "master_creature", field: "creatureId" }
-  name_en: { from: "master_text_EN", link_key: { from: "master_creature", field: "nameKey" }}
-  name_ja: { from: "master_text_JA", link_key: { from: "master_creature", field: "nameKey" }}
+  name_en: { from: "master_text_EN", link_key: { from: "master_creature", field: "nameKey" } }
+  name_ja: { from: "master_text_JA", link_key: { from: "master_creature", field: "nameKey" } }
+  name_en_custom: { from: "custom_creature_names", link_key: { from: "master_creature", field: "creatureId" }, field: "name_en" }
+  name_ja_custom: { from: "custom_creature_names", link_key: { from: "master_creature", field: "creatureId" }, field: "name_ja" }
   species_id: { from: "master_creature", field: "speciesId" }
+  image: { from: "creature_images", link_key: { from: "master_creature", field: "creatureId" }, field: "image" }
 
   weight: { from: "master_creature", field: "weight" }
 
