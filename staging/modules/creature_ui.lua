@@ -477,4 +477,124 @@ function p.spawners(frame)
     return result
 end
 
+--[[ 
+  Generates a MediaWiki table of creatures that drop a specific item.
+  Usage: {{#invoke:Data/Creature/UI|source_creatures|ItemName|lang=en}}
+--]]
+function p.source_creatures(frame)
+    local util = get_util()
+    local creature_util = get_creature_util()
+    
+    local args = frame.args
+    local parent_args = frame:getParent() and frame:getParent().args or {}
+    local item_name_arg = args[1] or parent_args[1]
+    local lang = args.lang or parent_args.lang or 'en'
+    lang = string.lower(lang)
+
+    if not item_name_arg or item_name_arg == "" then
+        return "<strong class=\"error\">Error: No item name provided.</strong>"
+    end
+
+    -- 1. Resolve item ID
+    local item_data = util.get_entry_by_fields("/Item.json", {"name_en", "name_ja"}, item_name_arg, true)
+    if not item_data then
+        return "<strong class=\"error\">Error: Item \"" .. item_name_arg .. "\" not found.</strong>"
+    end
+    local target_item_id = item_data.id
+
+    -- 2. Find all drop_ids that contain this item
+    local drop_entries = util.get_entries_by_field("/Drop_Creature.json", "item_id", target_item_id, false)
+    if not drop_entries or #drop_entries == 0 then
+        return "''No creatures drop this item.''"
+    end
+
+    -- Group by drop_id for faster lookup
+    local drop_id_to_details = {}
+    for _, de in ipairs(drop_entries) do
+        local d_id = de.drop_id
+        if not drop_id_to_details[d_id] then drop_id_to_details[d_id] = {} end
+        table.insert(drop_id_to_details[d_id], de)
+    end
+
+    -- 3. Scan all creatures for matching drop_ids
+    local all_creatures = util.get_all_entries("/Creature.json")
+    local rows_by_creature = {}
+
+    for _, creature in ipairs(all_creatures) do
+        if creature.drops then
+            for _, drop_info in ipairs(creature.drops) do
+                local matches = drop_id_to_details[drop_info.drop_id]
+                if matches then
+                    -- Resolve total weight for each involved drop group to calculate chance
+                    -- Note: Drop_Creature.json entries for the SAME drop_id define the groups.
+                    local all_items_in_drop = util.get_entries_by_field("/Drop_Creature.json", "drop_id", drop_info.drop_id, false)
+                    local group_weights = {}
+                    for _, item in ipairs(all_items_in_drop) do
+                        local g_id = item.drop_group
+                        group_weights[g_id] = (group_weights[g_id] or 0) + item.weight
+                    end
+
+                    local details_parts = {}
+                    for _, match in ipairs(matches) do
+                        local amount_str = (match.drop_min_amount == match.drop_max_amount) and tostring(match.drop_min_amount) or (match.drop_min_amount .. "-" .. match.drop_max_amount)
+                        local total_g_weight = group_weights[match.drop_group] or 0
+                        local chance = (total_g_weight > 0) and (match.weight / total_g_weight * 100) or 0
+                        local chance_str = string.format("%.4g%%", chance)
+                        
+                        table.insert(details_parts, string.format("%s (%s)", amount_str, chance_str))
+                    end
+
+                    local c_id = creature.id
+                    if not rows_by_creature[c_id] then
+                        local c_name = creature_util.get_creature_display_name(creature, lang)
+                        local c_link = string.format("[[%s|%s]]", creature.name_en or "", c_name)
+                        rows_by_creature[c_id] = { name = c_name, link = c_link, drops = {} }
+                    end
+
+                    local level_range = tostring(drop_info.creature_min_level)
+                    if drop_info.creature_min_level ~= drop_info.creature_max_level then
+                        level_range = level_range .. "-" .. drop_info.creature_max_level
+                    end
+
+                    table.insert(rows_by_creature[c_id].drops, {
+                        level_range = level_range,
+                        details = table.concat(details_parts, ", ")
+                    })
+                end
+            end
+        end
+    end
+
+    if not next(rows_by_creature) then
+        return "''No creatures drop this item.''"
+    end
+
+    -- 4. Render Table
+    local wikitext = {}
+    table.insert(wikitext, '{| class="wikitable sortable he-droptable he-creature"')
+    table.insert(wikitext, '|-')
+    table.insert(wikitext, '! colspan="3" style="font-size: 1.2em; background-color:var(--wiki-accent-color); color:var(--wiki-accent-label-color);" | ' .. (item_data['name_' .. lang] or item_data.name_en))
+    table.insert(wikitext, '|-')
+    table.insert(wikitext, '! Creature')
+    table.insert(wikitext, '! Level Range')
+    table.insert(wikitext, '! Drop Details')
+
+    local sorted_ids = {}
+    for id in pairs(rows_by_creature) do table.insert(sorted_ids, id) end
+    table.sort(sorted_ids, function(a, b) return rows_by_creature[a].name < rows_by_creature[b].name end)
+
+    for _, id in ipairs(sorted_ids) do
+        local data = rows_by_creature[id]
+        for i, drop_info in ipairs(data.drops) do
+            table.insert(wikitext, '|-')
+            table.insert(wikitext, '| ' .. data.link)
+            table.insert(wikitext, '| ' .. drop_info.level_range)
+            table.insert(wikitext, '| ' .. drop_info.details)
+        end
+    end
+
+    table.insert(wikitext, '|}')
+    return table.concat(wikitext, '\n')
+end
+
 return p

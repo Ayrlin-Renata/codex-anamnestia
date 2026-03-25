@@ -8,12 +8,28 @@
     "image": "Wolf_Profile_0.8.2.png"
   },
   {
+    "id": 3,
+    "image": "Deer_Profile_0.8.2.png"
+  },
+  {
     "id": 4,
     "image": "Slime_Profile_0.8.2.png"
   },
   {
-    "id": 10,
-    "image": "Pepper_Mandragora.png"
+    "id": 5,
+    "image": "Sheep_Profile_0.8.2.png"
+  },
+  {
+    "id": 6,
+    "image": "Boar_Profile_0.8.2.png"
+  },
+  {
+    "id": 9,
+    "image": "Chicken_Profile_0.8.2.png"
+  },
+  {
+    "id": 12,
+    "image": "Bumble_Bee.png"
   },
   {
     "id": 13,
@@ -38,5 +54,13 @@
   {
     "id": 24,
     "image": "ポイズン-1400x788.jpg"
+  },
+  {
+    "id": 26,
+    "image": "Pepper_Mandragora.png"
+  },
+  {
+    "id": 27,
+    "image": "Fire_Slime.png"
   }
 ]
