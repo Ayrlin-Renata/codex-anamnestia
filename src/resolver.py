@@ -32,6 +32,9 @@ def _get_value(context, rule, all_data, silent=False):
         if 'field' in rule:
             if isinstance(linked_item, dict):
                 return linked_item.get(rule['field'])
+            elif isinstance(linked_item, list) and len(linked_item) > 0:
+                # If it's a list (from group_by), we take the field from the first item.
+                return linked_item[0].get(rule['field']) if isinstance(linked_item[0], dict) else None
             else:
                 if not silent:
                     logging.warning(f"Rule expects a dictionary to get field '{rule['field']}', but linked item is a {type(linked_item)}.")

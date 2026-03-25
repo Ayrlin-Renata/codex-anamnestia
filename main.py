@@ -73,15 +73,27 @@ def run_processing_pipeline(spec_name, action, global_config):
                 source_name = union_source['name']
                 id_field = union_source['id_field']
                 source_data = all_data.get(source_name, {})
-                for item in source_data.values():
-                    item_id = item.get(id_field)
-                    if item_id is not None: master_id_set.add(item_id)
+                for item_or_list in source_data.values():
+                    if isinstance(item_or_list, list):
+                        for sub_item in item_or_list:
+                            item_id = sub_item.get(id_field)
+                            if item_id is not None: master_id_set.add(item_id)
+                    else:
+                        item_id = item_or_list.get(id_field)
+                        if item_id is not None: master_id_set.add(item_id)
             logging.info(f"Found {len(master_id_set)} unique IDs for union.")
             resolved_objects = resolve_data(spec, all_data, master_id_set)
         else:
             primary_source_name = spec.get('primary_source')
             primary_data = all_data.get(primary_source_name, {})
-            resolved_objects = resolve_data(spec, all_data, primary_data.values())
+            # Flatten if primary source is group_by, though usually it's lookup
+            items_to_process = []
+            for item_or_list in primary_data.values():
+                if isinstance(item_or_list, list):
+                    items_to_process.extend(item_or_list)
+                else:
+                    items_to_process.append(item_or_list)
+            resolved_objects = resolve_data(spec, all_data, items_to_process)
         logging.info("--- Stage 2: Finished ---")
 
         if resolved_objects:
@@ -113,7 +125,7 @@ def main():
     parser.add_argument('--spec', type=str, help='The name of the specification file to run.')
     parser.add_argument('--all-specs', action='store_true', help='Run the specified action for all spec files.')
     parser.add_argument('--action', type=str, choices=['collect', 'resolve', 'generate-modules', 'upload', 'full'], default='full', help='The action to perform.')
-    parser.add_argument('--upload-target', type=str, choices=['data', 'modules', 'maps', 'all'], default='all', help="Specify what to upload.")
+    parser.add_argument('--upload-target', type=str, choices=['data', 'modules', 'maps', 'templates', 'all'], default='all', help="Specify what to upload.")
     parser.add_argument('--version', type=str, help='A specific version string (e.g., game version) for the upload.')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose logging output.')
 

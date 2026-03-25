@@ -58,6 +58,6 @@ def generate_lua_modules(spec_name, resolved_data, global_config):
     os.makedirs(staging_wikitemplates_dir, exist_ok=True)
     if os.path.exists(wikitemplates_dir):
         for f in os.listdir(wikitemplates_dir):
-            if f.endswith('.wikitext') and spec_base_name in f.lower():
+            if f.endswith('.wikitext') and (spec_base_name in f.lower() or f == 'Infobox.wikitext'):
                 shutil.copy(os.path.join(wikitemplates_dir, f), os.path.join(staging_wikitemplates_dir, f))
                 logging.info(f"Staged wikitext template: {f}")

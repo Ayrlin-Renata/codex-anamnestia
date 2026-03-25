@@ -1,0 +1,3 @@
+<includeonly>{{#invoke:Data/{{{1}}}/UI|infobox|{{{2}}}|lang={{{lang|}}}}}</includeonly><noinclude>
+{{Documentation}}
+</noinclude>

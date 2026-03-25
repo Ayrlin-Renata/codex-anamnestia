@@ -1,0 +1,14 @@
+<includeonly>{{#invoke:Infobox|main
+|kind=item
+|title={{{title|}}}
+|sep=,
+|image={{#if:{{{image|}}}|[[File:{{{image}}}{{!}}200px]]}}
+|sections=Info, Stats, Metadata
+|Info=Item ID,Category,Sort ID,Name (EN),Name (JA),Description,Durability,Loses When Broken
+|Stats=Attack Power,Defense,Magic Defense,Breaking Power,Food Points,Water Points,Cooldown,HP,Mood Type,Mood Points
+|Metadata=MetadataContent
+|MetadataContent_nolabel=yes
+|MetadataContent_wide=yes
+}}</includeonly><noinclude>
+[[Category: Infobox template]]
+{{documentation}}</noinclude>

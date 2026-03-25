@@ -58,8 +58,8 @@ class WikiUploader:
         except Exception as e:
             logging.error(f"Failed to upload to {full_page_name}: {e}")
     
-    def _upload_modules(self, version, spec_name=None):
-        logging.info("--- Uploading Lua modules... ---")
+    def _upload_modules(self, version, spec_name=None, target='all'):
+        logging.info("--- Uploading Lua modules and/or Templates... ---")
         module_groups = self.upload_config.get('module_groups', [])
         
         if not module_groups:
@@ -70,6 +70,13 @@ class WikiUploader:
         
         for group in module_groups:
             prefix = group.get('prefix', '')
+            is_template = prefix.startswith('Template')
+            
+            if target == 'templates' and not is_template:
+                continue
+            if target == 'modules' and is_template:
+                continue
+                
             module_map = group.get('modules', {})
             current_staging_dir = group.get('staging_dir', staging_dir)
             upload_map = module_map
@@ -87,7 +94,7 @@ class WikiUploader:
                 elif not is_map_group:
                     upload_map = {
                         k: v for k, v in module_map.items()
-                        if k.startswith(base_spec_name) or k == 'utils.lua' or (k.endswith('.wikitext') and base_spec_name in k.lower())
+                        if k.startswith(base_spec_name) or k == 'utils.lua' or (k.endswith('.wikitext') and (base_spec_name in k.lower() or k == 'Infobox.wikitext'))
                     }
             
             for local_file, wiki_page_name in upload_map.items():
@@ -196,11 +203,11 @@ class WikiUploader:
             logging.error("Upload action requires a version string. Use the --version argument.")
             return
         
-        if upload_target in ['modules', 'data', 'maps', 'all']:
+        if upload_target in ['modules', 'data', 'maps', 'templates', 'all']:
             self._upload_meta(version)
         
-        if upload_target in ['modules', 'all']:
-            self._upload_modules(version, spec_name=spec_name)
+        if upload_target in ['modules', 'templates', 'all']:
+            self._upload_modules(version, spec_name=spec_name, target=upload_target)
         
         if upload_target in ['data', 'all']:
             self._upload_data(version, spec_name=spec_name)
