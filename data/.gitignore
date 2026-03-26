@@ -1,4 +1,2 @@
-# Ignore raw extracted data.
-# This data is considered temporary and can be regenerated.
-/decoded
+/survival
 !.gitignore

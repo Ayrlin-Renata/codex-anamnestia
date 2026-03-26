@@ -108,7 +108,10 @@ class WikiUploader:
                 except Exception as e:
                     logging.error(f"Error while processing {local_path}: {e}")
     
-    def _upload_meta(self, version):
+    def _upload_meta(self, version, is_historical=False):
+        if is_historical:
+            logging.info("--- Skipping metadata update for historical run ---")
+            return
         logging.info("--- Updating metadata file... ---")
         version_id = version
         meta_page_name = self.upload_config.get('meta_page', '/meta.json')
@@ -125,7 +128,7 @@ class WikiUploader:
             meta_data['versions'].insert(0, version_id)
         self._upload_content(meta_page_name, meta_prefix, json.dumps(meta_data, separators=(',', ':')), f"Add data version {version_id}")
     
-    def _upload_data(self, version, spec_name=None):
+    def _upload_data(self, version, spec_name=None, is_historical=False):
         logging.info("--- Uploading data files... ---")
         data_map = self.upload_config.get('data', {})
         data_prefix = "Module:Data"
@@ -163,7 +166,10 @@ class WikiUploader:
                     id_field = 'id'
                     data_for_lua = {item.get(id_field): item for item in resolved_data if item.get(id_field) is not None}
                     content_to_upload = "return " + to_lua_table(data_for_lua)
-                self._upload_content(wiki_page_name, data_prefix, content_to_upload, summary)
+                
+                if not is_historical:
+                    self._upload_content(wiki_page_name, data_prefix, content_to_upload, summary)
+                
                 history_page_name = f"{data_prefix}{self.history_prefix}/{version_id}{wiki_page_name}"
                 self._upload_content(history_page_name, data_prefix, content_to_upload, summary, is_history=True)
             except FileNotFoundError:
@@ -198,19 +204,19 @@ class WikiUploader:
             except Exception as e:
                 logging.error(f"Error while processing {local_path}: {e}")
     
-    def upload(self, upload_target, version, spec_name=None):
+    def upload(self, upload_target, version, spec_name=None, is_historical=False):
         if not version:
             logging.error("Upload action requires a version string. Use the --version argument.")
             return
         
         if upload_target in ['modules', 'data', 'maps', 'templates', 'all']:
-            self._upload_meta(version)
+            self._upload_meta(version, is_historical=is_historical)
         
         if upload_target in ['modules', 'templates', 'all']:
             self._upload_modules(version, spec_name=spec_name, target=upload_target)
         
         if upload_target in ['data', 'all']:
-            self._upload_data(version, spec_name=spec_name)
+            self._upload_data(version, spec_name=spec_name, is_historical=is_historical)
         
         if upload_target in ['maps', 'all']:
             self._upload_maps(version, spec_name=spec_name)

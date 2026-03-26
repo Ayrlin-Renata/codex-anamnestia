@@ -11,6 +11,7 @@ from src.resolver import resolve_data
 from src.generators.lua_module_generator import generate_lua_modules
 from src.generators.json_map_generator import generate_json_maps
 from src.uploaders.wiki_uploader import WikiUploader
+from src.utils.archiver import archive_version_sources
 
 def get_extractor(type_name):
     if type_name == 'local_file':
@@ -120,11 +121,90 @@ def run_processing_pipeline(spec_name, action, global_config):
         generate_json_maps(spec_name, resolved_objects, global_config)
         logging.info("--- Stage 3: Finished ---")
 
+def handle_historical_update(args, global_config):
+    config_path = 'historical_update_config.json'
+    
+    # 1. Check if config exists
+    if not os.path.exists(config_path):
+        logging.warning(f"'{config_path}' not found. Generating a template based on codex_config keys...")
+        
+        # Mirror local_data_paths from global_config
+        local_paths = global_config.get('local_data_paths', {})
+        template = {
+            "_notice": "You can use %archive% to point to the source_archives directory. Example: %archive%/1.3.0.0__t.zip/survival",
+            "local_data_paths": {key: "" for key in local_paths.keys()}
+        }
+        
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(template, f, indent=2)
+        
+        print("\n" + "!"*60)
+        print(f"!!! TEMPLATE GENERATED: {config_path}")
+        print("!!! Please fill in the correct base paths for the historical version.")
+        print("!!! If a path key is left blank, any spec using that source_key will be skipped.")
+        print("!"*60 + "\n")
+        return
+
+    # 2. Load config and override global_config
+    with open(config_path, 'r', encoding='utf-8') as f:
+        update_config = json.load(f)
+
+    logging.info(f"--- Running Historical Update for version {args.version} ---")
+    
+    historical_paths = update_config.get('local_data_paths', {})
+    archive_base = os.path.abspath('source_archives')
+    
+    for key, path in historical_paths.items():
+        if path and path != "":
+            # Substitute %archive%
+            if "%archive%" in path:
+                path = path.replace("%archive%", archive_base)
+            
+            global_config['local_data_paths'][key] = os.path.expandvars(path)
+            logging.info(f"Overriding local_data_path '{key}' with: {global_config['local_data_paths'][key]}")
+    
+    # 3. Resolve specs to run
+    config_dir = 'configs'
+    all_spec_names = [f.replace('.yaml', '') for f in os.listdir(config_dir) if f.endswith('.yaml')]
+    if args.spec:
+        spec_names = [args.spec]
+    else:
+        spec_names = all_spec_names
+
+    uploader = WikiUploader()
+    
+    for spec_name in spec_names:
+        spec = load_spec(spec_name)
+        if not spec: continue
+        
+        # Check if any source used by this spec relies on a blank key in historical config
+        skip_spec = False
+        spec_sources = spec.get('sources', [])
+        for s in spec_sources:
+            if s.get('type') == 'local_file':
+                s_key = s.get('source_key')
+                # If the key was provided in the historical config but is blank, skip it.
+                if s_key in historical_paths and historical_paths[s_key] == "":
+                    logging.info(f"Skipping spec '{spec_name}' because source_key '{s_key}' is blank in historical config.")
+                    skip_spec = True
+                    break
+        
+        if skip_spec: continue
+
+        # Run Stages 1 & 2
+        run_processing_pipeline(spec_name, 'resolve', global_config)
+        
+        # Run Stage 4 (Upload Data ONLY)
+        logging.info(f"--- Uploading DATA ONLY for '{spec_name}' (Version {args.version}) ---")
+        uploader.upload('data', args.version, spec_name=spec_name, is_historical=True)
+
+    logging.info("--- Historical Update Pipeline finished ---")
+
 def main():
     parser = argparse.ArgumentParser(description="Wiki Data Pipeline.")
     parser.add_argument('--spec', type=str, help='The name of the specification file to run.')
     parser.add_argument('--all-specs', action='store_true', help='Run the specified action for all spec files.')
-    parser.add_argument('--action', type=str, choices=['collect', 'resolve', 'generate-modules', 'upload', 'full'], default='full', help='The action to perform.')
+    parser.add_argument('--action', type=str, choices=['collect', 'resolve', 'generate-modules', 'upload', 'full', 'historical-update'], default='full', help='The action to perform.')
     parser.add_argument('--upload-target', type=str, choices=['data', 'modules', 'maps', 'templates', 'all'], default='all', help="Specify what to upload.")
     parser.add_argument('--version', type=str, help='A specific version string (e.g., game version) for the upload.')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose logging output.')
@@ -148,6 +228,13 @@ def main():
             global_config['local_data_paths'][key] = os.path.expandvars(path)
 
     # --- Main Pipeline Execution ---
+    if args.action == 'historical-update':
+        if not args.version:
+            logging.error("'historical-update' requires a --version to be specified.")
+            return
+        handle_historical_update(args, global_config)
+        return
+
     if args.action != 'upload':
         if args.all_specs:
             config_dir = 'configs'
@@ -170,6 +257,12 @@ def main():
         uploader = WikiUploader()
         uploader.upload(args.upload_target, args.version, spec_name=args.spec)
         logging.info("--- Stage 4: Finished ---")
+
+    # --- Archival Stage ---
+    if args.action in ['collect', 'resolve', 'generate-modules', 'full'] and args.version:
+        logging.info("--- Starting Automatic Archival ---")
+        archive_version_sources(args.version, global_config)
+        logging.info("--- Archival Stage Finished ---")
 
     logging.info("--- Pipeline finished ---")
 
