@@ -17,6 +17,9 @@ def get_extractor(type_name):
     if type_name == 'local_file':
         module_name = 'src.extractors.local_file_extractor'
         class_name = 'LocalFileExtractor'
+    elif type_name == 'cdn':
+        module_name = 'src.extractors.cdn_extractor'
+        class_name = 'CdnExtractor'
     else:
         module_name = f"src.extractors.{type_name}_extractor"
         class_name = f"{type_name.capitalize()}Extractor"
@@ -52,10 +55,8 @@ def run_processing_pipeline(spec_name, action, global_config):
                 try:
                     ExtractorClass = get_extractor(source_type)
                     extractor = ExtractorClass()
-                    if source_type == 'local_file':
-                        raw_data = extractor.extract(source_spec, global_config.get('local_data_paths', {}))
-                    else:
-                        raw_data = extractor.extract(source_spec)
+                    # All extractors now receive global_config for standardization
+                    raw_data = extractor.extract(source_spec, global_config)
                 except Exception as e:
                     logging.error(f"Failed to run extractor for type '{source_type}'. {e}")
                     continue
@@ -150,6 +151,7 @@ def handle_historical_update(args, global_config):
         update_config = json.load(f)
 
     logging.info(f"--- Running Historical Update for version {args.version} ---")
+    global_config['is_historical'] = True
     
     historical_paths = update_config.get('local_data_paths', {})
     archive_base = os.path.abspath('source_archives')

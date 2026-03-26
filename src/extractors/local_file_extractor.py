@@ -8,7 +8,8 @@ class LocalFileExtractor:
     """
     Extracts data from local, potentially encrypted, game files.
     """
-    def extract(self, source_info, base_paths):
+    def extract(self, source_info, config):
+        base_paths = config.get('local_data_paths', {})
         source_type_path = source_info.get('path_type', 'default')
         relative_path = source_info['path']
         base_path = base_paths.get(source_type_path)

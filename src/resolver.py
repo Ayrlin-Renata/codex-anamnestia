@@ -108,6 +108,17 @@ def _apply_transform(value, rule, all_data):
         except ValueError as e:
             logging.warning(f"Could not cast split value to '{as_type}'. {e}. Returning strings.")
             return [v.strip() for v in split_values if v.strip()]
+            
+    if transform_type == 'suffix_lookup':
+        lookup_source_name = transform_rule.get('in_source')
+        suffix = transform_rule.get('suffix', '')
+        if not lookup_source_name:
+            logging.warning(f"Transform 'suffix_lookup' is missing 'in_source'.")
+            return value
+        target_source = all_data.get(lookup_source_name, {})
+        lookup_key = f"{value}{suffix}" if value is not None else None
+        return target_source.get(lookup_key)
+        
     return value
 
 
@@ -156,18 +167,31 @@ def _build_node(context, structure, all_data, level=0):
             else:
                 output_node[key] = _build_node(context, rule['fields'], all_data, level + 1)
         elif node_type == 'list':
-            logging.debug(f"  - Type: List from '{rule.get('from')}'")
-            lookup_key = _get_value(context, rule['link_key'], all_data)
-            logging.debug(f"  - Generated list lookup key: '{lookup_key}'")
-            target_source = all_data.get(rule['from'], {})
-            linked_item = target_source.get(lookup_key)
+            sources = rule['from'] if isinstance(rule['from'], list) else [rule['from']]
+            linked_list = []
             
-            if 'field' in rule and isinstance(linked_item, dict):
-                logging.debug(f"  - Extracting list from field '{rule['field']}' of linked object.")
-                linked_list = linked_item.get(rule['field'], [])
-            else:
-                linked_list = linked_item if isinstance(linked_item, list) else []
-            logging.debug(f"  - Found {len(linked_list)} items in list.")
+            for src_name in sources:
+                target_source = all_data.get(src_name, {})
+                if 'link_key' in rule:
+                    lookup_key = _get_value(context, rule['link_key'], all_data)
+                    items = target_source.get(lookup_key) if lookup_key is not None else None
+                else:
+                    # If no link_key, treat the whole source as the list (or dict to extract from)
+                    items = target_source
+                
+                if items:
+                    if 'field' in rule and isinstance(items, dict):
+                        items = items.get(rule['field'], [])
+                    
+                    if isinstance(items, list):
+                        linked_list.extend(items)
+                    elif isinstance(items, dict):
+                        # If it's a dict (and no field was specified or found), 
+                        # we might want the values or just the dict itself as one item.
+                        # For unioning sources that are lists-of-dicts, they'll already be lists.
+                        linked_list.append(items)
+            
+            logging.debug(f"  - Found total {len(linked_list)} items across {len(sources)} sources.")
             
             if 'sub_object' in rule:
                 logging.debug(f"  - Building list of complex objects...")
@@ -189,6 +213,18 @@ def _build_node(context, structure, all_data, level=0):
             else:
                 logging.debug(f"  - Returning bare list as-is.")
                 output_node[key] = linked_list
+            
+            # Application of group_by after list construction
+            if 'group_by' in rule and output_node[key]:
+                from collections import defaultdict
+                group_field = rule['group_by']
+                groups = defaultdict(list)
+                for item in output_node[key]:
+                    g_key = item.get(group_field)
+                    if g_key is not None: groups[g_key].append(item)
+                
+                # Format as list of { key: ..., items: [...] }
+                output_node[key] = [{"key": k, "items": v} for k, v in sorted(groups.items())]
         else:
             output_node[key] = _resolve_simple_value(context, rule, all_data)
     return output_node
@@ -202,6 +238,13 @@ def resolve_data(spec, all_data, items_to_process):
     resolved_objects = []
     output_structure = spec['output_structure']
     is_union = spec.get('resolution_strategy') == 'union'
+    is_singleton = spec.get('resolution_strategy') == 'singleton'
+    
+    if is_singleton:
+        logging.info("Using 'singleton' resolution strategy.")
+        resolved_obj = _build_node({}, output_structure, all_data)
+        return [resolved_obj]
+        
     logging.info(f"Processing {len(items_to_process)} items.")
     
     for i, item in enumerate(items_to_process):

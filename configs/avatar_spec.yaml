@@ -1,0 +1,169 @@
+# Specification for resolving avatar data into Data:Avatars.json
+# Uses the 'singleton' resolution strategy to produce a single structured object.
+
+resolution_strategy: "singleton"
+
+# Configuration for individual sources within the avatar JSON blob.
+sources:
+  # Meta & Localization
+  - { name: "localizes", type: "cdn", path: "avatar_all", sub_key: "localizes", strategy: "lookup", key: "k" }
+  - { name: "avatarPartsDescriptions", type: "cdn", path: "avatar_all", sub_key: "avatarPartsDescriptions", strategy: "lookup", key: "k" }
+  
+  # Fashion Items (Unioned in output)
+  - { name: "avatarAccBags", type: "cdn", path: "avatar_all", sub_key: "avatarAccBags" }
+  - { name: "avatarAccBelts", type: "cdn", path: "avatar_all", sub_key: "avatarAccBelts" }
+  - { name: "avatarAccCapes", type: "cdn", path: "avatar_all", sub_key: "avatarAccCapes" }
+  - { name: "avatarAccFaces", type: "cdn", path: "avatar_all", sub_key: "avatarAccFaces" }
+  - { name: "avatarAccGloves", type: "cdn", path: "avatar_all", sub_key: "avatarAccGloves" }
+  - { name: "avatarAccGlasss", type: "cdn", path: "avatar_all", sub_key: "avatarAccGlasss" }
+  - { name: "avatarAccHeads", type: "cdn", path: "avatar_all", sub_key: "avatarAccHeads" }
+  - { name: "avatarAccMasks", type: "cdn", path: "avatar_all", sub_key: "avatarAccMasks" }
+  - { name: "avatarAccNecklaces", type: "cdn", path: "avatar_all", sub_key: "avatarAccNecklaces" }
+  - { name: "avatarAccOthers", type: "cdn", path: "avatar_all", sub_key: "avatarAccOthers" }
+  - { name: "avatarAccTops", type: "cdn", path: "avatar_all", sub_key: "avatarAccTops" }
+  - { name: "avatarAccWaists", type: "cdn", path: "avatar_all", sub_key: "avatarAccWaists" }
+  - { name: "avatarClothBottoms", type: "cdn", path: "avatar_all", sub_key: "avatarClothBottoms" }
+  - { name: "avatarClothOuters", type: "cdn", path: "avatar_all", sub_key: "avatarClothOuters" }
+  - { name: "avatarClothShoes", type: "cdn", path: "avatar_all", sub_key: "avatarClothShoes" }
+  - { name: "avatarClothSocks", type: "cdn", path: "avatar_all", sub_key: "avatarClothSocks" }
+  - { name: "avatarClothTops", type: "cdn", path: "avatar_all", sub_key: "avatarClothTops" }
+  - { name: "avatarClothUnderwears", type: "cdn", path: "avatar_all", sub_key: "avatarClothUnderwears" }
+  - { name: "avatarContacts", type: "cdn", path: "avatar_all", sub_key: "avatarContacts" }
+
+  # Avatar Body Parts
+  - { name: "avatarCheeks", type: "cdn", path: "avatar_all", sub_key: "avatarCheeks" }
+  - { name: "avatarEyebrows", type: "cdn", path: "avatar_all", sub_key: "avatarEyebrows" }
+  - { name: "avatarEyes", type: "cdn", path: "avatar_all", sub_key: "avatarEyes" }
+  - { name: "avatarEyeColors", type: "cdn", path: "avatar_all", sub_key: "avatarEyeColors" }
+  - { name: "avatarEyeshadows", type: "cdn", path: "avatar_all", sub_key: "avatarEyeshadows" }
+  - { name: "avatarFaces", type: "cdn", path: "avatar_all", sub_key: "avatarFaces" }
+  - { name: "avatarHairBacks", type: "cdn", path: "avatar_all", sub_key: "avatarHairBacks", strategy: "lookup", key: "id" }
+  - { name: "avatarHairFronts", type: "cdn", path: "avatar_all", sub_key: "avatarHairFronts", strategy: "lookup", key: "id" }
+  - { name: "avatarHairMiddles", type: "cdn", path: "avatar_all", sub_key: "avatarHairMiddles", strategy: "lookup", key: "id" }
+  - { name: "avatarHairSets", type: "cdn", path: "avatar_all", sub_key: "avatarHairSets" }
+  - { name: "avatarLips", type: "cdn", path: "avatar_all", sub_key: "avatarLips" }
+  - { name: "avatarPaints", type: "cdn", path: "avatar_all", sub_key: "avatarPaints" }
+  - { name: "avatarPupils", type: "cdn", path: "avatar_all", sub_key: "avatarPupils" }
+  - { name: "avatarRampHairColors", type: "cdn", path: "avatar_all", sub_key: "avatarRampHairColors" }
+  - { name: "avatarRampSkinColors", type: "cdn", path: "avatar_all", sub_key: "avatarRampSkinColors" }
+  - { name: "avatarVoiceTypes", type: "cdn", path: "avatar_all", sub_key: "avatarVoiceTypes" }
+  - { name: "avatarTypes", type: "cdn", path: "avatar_all", sub_key: "avatarTypes" }
+  - { name: "avatarPresets", type: "cdn", path: "avatar_all", sub_key: "avatarPresets" }
+
+  # Mannequins
+  - { name: "mannequinObjects", type: "cdn", path: "avatar_all", sub_key: "mannequinObjects" }
+  - { name: "mannequinStands", type: "cdn", path: "avatar_all", sub_key: "mannequinStands" }
+  - { name: "partsMannequins", type: "cdn", path: "avatar_all", sub_key: "partsMannequins" }
+
+  # Shop & System
+  - { name: "editCostGroups", type: "cdn", path: "avatar_all", sub_key: "editCostGroups" }
+  - { name: "avatarCustomCategorys", type: "cdn", path: "avatar_all", sub_key: "avatarCustomCategorys" }
+  - { name: "areaTags", type: "cdn", path: "avatar_all", sub_key: "areaTags" }
+  - { name: "keyVals", type: "cdn", path: "avatar_all", sub_key: "keyVals" }
+  - { name: "avatarDressupCategorys", type: "cdn", path: "avatar_all", sub_key: "avatarDressupCategorys" }
+  - { name: "avatarCreateModeEnvironments", type: "cdn", path: "avatar_all", sub_key: "avatarCreateModeEnvironments" }
+  - { name: "avatarPartsThumbnails", type: "cdn", path: "avatar_all", sub_key: "avatarPartsThumbnails" }
+
+output_structure:
+  fashion_item:
+    type: "list"
+    from: 
+      - "avatarAccBags"
+      - "avatarAccBelts"
+      - "avatarAccCapes"
+      - "avatarAccFaces"
+      - "avatarAccGloves"
+      - "avatarAccGlasss"
+      - "avatarAccHeads"
+      - "avatarAccMasks"
+      - "avatarAccNecklaces"
+      - "avatarAccOthers"
+      - "avatarAccTops"
+      - "avatarAccWaists"
+      - "avatarClothBottoms"
+      - "avatarClothOuters"
+      - "avatarClothShoes"
+      - "avatarClothSocks"
+      - "avatarClothTops"
+      - "avatarClothUnderwears"
+      - "avatarContacts"
+    sub_object:
+      id: { from_parent: true, field: "id" }
+      localize_EN: { from: "localizes", link_key: { from_parent: true, field: "localizeKey" }, field: "en" }
+      localize_JA: { from: "localizes", link_key: { from_parent: true, field: "localizeKey" }, field: "ja" }
+      description_EN: { from: "avatarPartsDescriptions", link_key: { from_parent: true, field: "localizeKey" }, field: "en", transform: { type: "suffix_lookup", suffix: "_DESC" } }
+      description_JA: { from: "avatarPartsDescriptions", link_key: { from_parent: true, field: "localizeKey" }, field: "ja", transform: { type: "suffix_lookup", suffix: "_DESC" } }
+      sortKey: { from_parent: true, field: "sortKey" }
+
+  avatar:
+    type: "object"
+    fields:
+      avatarCheeks: { type: "list", from: "avatarCheeks" }
+      avatarEyebrows: { type: "list", from: "avatarEyebrows" }
+      avatarEyes: { type: "list", from: "avatarEyes" }
+      avatarEyeColors: { type: "list", from: "avatarEyeColors" }
+      avatarEyeshadows: { type: "list", from: "avatarEyeshadows" }
+      avatarFaces: { type: "list", from: "avatarFaces" }
+      avatarHairBacks: { type: "list", from: "avatarHairBacks" }
+      avatarHairFronts: { type: "list", from: "avatarHairFronts" }
+      avatarHairMiddles: { type: "list", from: "avatarHairMiddles" }
+      avatarHairSets: { type: "list", from: "avatarHairSets" }
+      avatarLips: { type: "list", from: "avatarLips" }
+      avatarPaints: { type: "list", from: "avatarPaints" }
+      avatarPupils: { type: "list", from: "avatarPupils" }
+      avatarRampHairColors: { type: "list", from: "avatarRampHairColors" }
+      avatarRampSkinColors: { type: "list", from: "avatarRampSkinColors" }
+      avatarVoiceTypes: { type: "list", from: "avatarVoiceTypes" }
+      avatarTypes: { type: "list", from: "avatarTypes" }
+      avatarPresets: { type: "list", from: "avatarPresets" }
+
+  mannequin:
+    type: "object"
+    fields:
+      mannequinObjects: { type: "list", from: "mannequinObjects" }
+      mannequinStands: { type: "list", from: "mannequinStands" }
+      partsMannequins: { type: "list", from: "partsMannequins" }
+
+  shop:
+    type: "object"
+    fields:
+      editCostGroups: { type: "list", from: "editCostGroups" }
+      avatarCustomCategorys: { type: "list", from: "avatarCustomCategorys" }
+
+  data:
+    type: "object"
+    fields:
+      areaTags: { type: "list", from: "areaTags" }
+      keyVals: { type: "list", from: "keyVals" }
+      avatarDressupCategorys: { type: "list", from: "avatarDressupCategorys" }
+      avatarCreateModeEnvironments: { type: "list", from: "avatarCreateModeEnvironments" }
+      avatarPartsThumbnails: { type: "list", from: "avatarPartsThumbnails" }
+
+  avatarFashionItemSets:
+    type: "list"
+    group_by: "sortKey"
+    from: 
+      - "avatarAccBags"
+      - "avatarAccBelts"
+      - "avatarAccCapes"
+      - "avatarAccFaces"
+      - "avatarAccGloves"
+      - "avatarAccGlasss"
+      - "avatarAccHeads"
+      - "avatarAccMasks"
+      - "avatarAccNecklaces"
+      - "avatarAccOthers"
+      - "avatarAccTops"
+      - "avatarAccWaists"
+      - "avatarClothBottoms"
+      - "avatarClothOuters"
+      - "avatarClothShoes"
+      - "avatarClothSocks"
+      - "avatarClothTops"
+      - "avatarClothUnderwears"
+      - "avatarContacts"
+    sub_object:
+      id: { from_parent: true, field: "id" }
+      localize_EN: { from: "localizes", link_key: { from_parent: true, field: "localizeKey" }, field: "en" }
+      localize_JA: { from: "localizes", link_key: { from_parent: true, field: "localizeKey" }, field: "ja" }
+      sortKey: { from_parent: true, field: "sortKey" }

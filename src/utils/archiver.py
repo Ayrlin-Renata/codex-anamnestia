@@ -34,22 +34,31 @@ def archive_version_sources(version, global_config):
         if not spec: continue
         
         for source in spec.get('sources', []):
-            if source.get('type') == 'local_file':
-                # Specs use 'path_type' (matching LocalFileExtractor)
+            s_type = source.get('type')
+            if s_type == 'local_file':
                 s_key = source.get('path_type') or source.get('source_key')
                 relative_path = source.get('path')
-                base_path = local_paths.get(s_key)
-                
-                if base_path and relative_path:
-                    abs_path = os.path.join(base_path, relative_path)
-                    # Normalize for zip path
-                    zip_rel_path = f"{s_key}/{relative_path}".replace('\\', '/')
-                    if os.path.exists(abs_path):
-                        file_mapping[zip_rel_path] = abs_path
-                    else:
-                        logging.warning(f"Archiver: Source file not found: {abs_path}")
+            elif s_type == 'manual':
+                continue # Skip manual data (embedded in spec)
+            else:
+                # Generic handling for file-backed extractors (like cdn)
+                s_key = s_type
+                relative_path = source.get('path')
+                # Optional: Handle .json suffix if it's likely a JSON-based extractor
+                if relative_path and s_type == 'cdn' and not relative_path.endswith('.json'):
+                    relative_path += ".json"
+            
+            base_path = local_paths.get(s_key)
+            if base_path and relative_path:
+                abs_path = os.path.join(base_path, relative_path)
+                # Normalize for zip path
+                zip_rel_path = f"{s_key}/{relative_path}".replace('\\', '/')
+                if os.path.exists(abs_path):
+                    file_mapping[zip_rel_path] = abs_path
                 else:
-                    logging.debug(f"Archiver: Skipping source '{source.get('name')}' - missing path_type or path.")
+                    logging.warning(f"Archiver: Source file not found: {abs_path}")
+            else:
+                logging.debug(f"Archiver: Skipping source '{source.get('name')}' - missing path_type or path.")
 
     if not file_mapping:
         logging.info("Archiver: No local files found to archive.")

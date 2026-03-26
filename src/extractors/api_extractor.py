@@ -7,7 +7,7 @@ class ApiExtractor(BaseExtractor):
     """
     Extracts data from a remote API endpoint.
     """
-    def extract(self, source_info):
+    def extract(self, source_info, config):
         url = source_info['url']
         logging.info(f"Extracting data from API: {url}")
         try:

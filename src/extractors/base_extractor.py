@@ -6,7 +6,7 @@ class BaseExtractor(ABC):
     Abstract base class for all data extractors.
     """
     @abstractmethod
-    def extract(self, source_info):
+    def extract(self, source_info, config):
         """Extracts data from a source.
 
         Args:
