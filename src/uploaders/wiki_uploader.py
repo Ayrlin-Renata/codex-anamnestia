@@ -3,6 +3,7 @@ import yaml
 import os
 import json
 import logging
+import time
 from dotenv import load_dotenv
 from src.generators.lua_module_generator import to_lua_table
 
@@ -11,7 +12,7 @@ class WikiUploader:
     """
     Handles versioning, formatting, and uploading data to a MediaWiki site.
     """
-    def __init__(self, config_path='upload_config.yaml'):
+    def __init__(self, config_path='configs/upload_config.yaml'):
         load_dotenv()
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
@@ -21,7 +22,10 @@ class WikiUploader:
             self.upload_config = {}
         
         self.history_prefix = self.upload_config.get('history_prefix', '/History')
+        self.shared_modules = self.upload_config.get('shared_modules', [])
         wiki_config = self.upload_config.get('wiki', {})
+        self.upload_delay = wiki_config.get('upload_delay', 0)
+        self.query_delay = wiki_config.get('query_delay', min(1.0, self.upload_delay / 2) if self.upload_delay > 0 else 0)
         host = wiki_config.get('host')
         path = wiki_config.get('path', '/w/')
         username = os.getenv("WIKI_USERNAME")
@@ -43,20 +47,79 @@ class WikiUploader:
     
     def _upload_content(self, page_name, prefix, content, summary, is_history=False):
         """
-        Helper function to upload content to a single wiki page.
+        Helper function to upload content to a single wiki page, skipping if identical to current content.
+        Uses separate delays for queries vs uploads and handles 429 retries.
         """
         
         if not self.site:
             logging.warning(f"SKIPPING upload to '{page_name}' (no wiki connection)")
             return
+        
         full_page_name = page_name if is_history else prefix + page_name
-        logging.info(f"Uploading to '{full_page_name}'...")
-        try:
-            page = self.site.pages[full_page_name]
-            page.save(content, summary=summary)
-            logging.info(f"Successfully uploaded to {full_page_name}")
-        except Exception as e:
-            logging.error(f"Failed to upload to {full_page_name}: {e}")
+        
+        # Check if upload is necessary by comparing with current page content
+        is_already_up_to_date = False
+        max_query_retries = 3
+        for attempt in range(max_query_retries):
+            try:
+                if self.query_delay > 0:
+                    time.sleep(self.query_delay)
+                
+                page = self.site.pages[full_page_name]
+                if page.exists:
+                    current_text = page.text()
+                    
+                    # Robust comparison: ignore leading/trailing whitespace
+                    if current_text and current_text.strip() == content.strip():
+                        logging.info(f"Page '{full_page_name}' is up to date. Skipping upload.")
+                        is_already_up_to_date = True
+                        break
+                    
+                    # Special handling for JSON comparison
+                    if full_page_name.endswith('.json'):
+                        try:
+                            if json.loads(current_text) == json.loads(content):
+                                logging.info(f"JSON data for '{full_page_name}' is identical. Skipping upload.")
+                                is_already_up_to_date = True
+                                break
+                        except (json.JSONDecodeError, ValueError):
+                            pass
+                break # Page doesn't exist or is not up to date
+            except Exception as e:
+                # Handle 429 retries specifically
+                if "429" in str(e) and attempt < max_query_retries - 1:
+                    wait_time = (attempt + 1) * 5
+                    logging.warning(f"429 Too Many Requests while querying {full_page_name}. Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    logging.debug(f"Failed to fetch current content for {full_page_name}: {e}")
+                    break
+        
+        if is_already_up_to_date:
+            return
+            
+        # Perform the actual upload
+        max_upload_retries = 3
+        for attempt in range(max_upload_retries):
+            try:
+                if self.upload_delay > 0:
+                    logging.debug(f"Rate limiting: Waiting {self.upload_delay}s before save...")
+                    time.sleep(self.upload_delay)
+                    
+                logging.info(f"Uploading to '{full_page_name}'...")
+                # Re-fetch page object if needed
+                page = self.site.pages[full_page_name] if 'page' not in locals() else page
+                page.save(content, summary=summary)
+                logging.info(f"Successfully uploaded to {full_page_name}")
+                break
+            except Exception as e:
+                if "429" in str(e) and attempt < max_upload_retries - 1:
+                    wait_time = (attempt + 1) * 10 # Longer wait for save failures
+                    logging.warning(f"429 Too Many Requests while uploading {full_page_name}. Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    logging.error(f"Failed to upload to {full_page_name}: {e}")
+                    break
     
     def _upload_modules(self, version, spec_name=None, target='all'):
         logging.info("--- Uploading Lua modules and/or Templates... ---")
@@ -94,8 +157,11 @@ class WikiUploader:
                 elif not is_map_group:
                     upload_map = {
                         k: v for k, v in module_map.items()
-                        if k.startswith(base_spec_name) or k == 'utils.lua' or (k.endswith('.wikitext') and (base_spec_name in k.lower() or k == 'Infobox.wikitext'))
+                        if k.startswith(base_spec_name) or k in self.shared_modules or 
+                        (k.endswith('.wikitext') and (base_spec_name in k.lower() or k == 'Infobox.wikitext'))
                     }
+                    if upload_map:
+                        logging.info(f"Filtered {len(upload_map)} modules for upload (spec: {spec_name}): {list(upload_map.keys())}")
             
             for local_file, wiki_page_name in upload_map.items():
                 local_path = os.path.join(current_staging_dir, local_file)
@@ -153,7 +219,7 @@ class WikiUploader:
             wiki_page_name = config['page'] if isinstance(config, dict) else config
             history_type = config.get('history') if isinstance(config, dict) else None
             
-            local_path = os.path.join("staging/output", local_file)
+            local_path = os.path.join("staging/outputs", local_file)
             logging.info(f"Processing data file: {local_path}")
             try:
                 with open(local_path, 'r', encoding='utf-8') as f:

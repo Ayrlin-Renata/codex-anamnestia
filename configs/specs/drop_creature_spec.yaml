@@ -1,0 +1,21 @@
+# Specification for resolving drop items from creatures.
+
+sources:
+  - name: "master_dropitem_for_creature"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_dropitem_for_creature.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "pid"
+
+primary_source: "master_dropitem_for_creature"
+
+output_structure:
+  pid: { from: "master_dropitem_for_creature", field: "pid"}
+  drop_id: { from: "master_dropitem_for_creature", field: "dropId" }
+  drop_group: { from: "master_dropitem_for_creature", field: "dropGroup" }
+  item_id: { from: "master_dropitem_for_creature", field: "itemId" }
+  drop_min_amount: { from: "master_dropitem_for_creature", field: "dropMinAmount" }
+  drop_max_amount: { from: "master_dropitem_for_creature", field: "dropMaxAmount" }
+  weight: { from: "master_dropitem_for_creature", field: "weight" }

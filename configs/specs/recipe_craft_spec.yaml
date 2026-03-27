@@ -1,0 +1,80 @@
+# Specification for resolving crafting recipes.
+
+sources:
+  - name: "master_craft_recipe"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_craft_recipe.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "craftRecipeId"
+
+  - name: "master_craft_material"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_craft_material.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by" # One recipe can have many materials
+    key: "recipeId"
+
+  - name: "master_craft_byproduct_drop"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_craft_byproduct_drop.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by" # One drop ID can have multiple outcomes
+    key: "dropId"
+
+  - name: "master_craft_recipe_group"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_craft_recipe_group.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "craftRecipeId"
+
+primary_source: "master_craft_recipe"
+
+output_structure:
+  id: { from: "master_craft_recipe", field: "craftRecipeId" }
+  result_item_id: { from: "master_craft_recipe", field: "resultItemId" }
+  result_amount: { from: "master_craft_recipe", field: "resultAmount" }
+  observation_point: { from: "master_craft_recipe", field: "observationPoint" }
+  required_token: { from: "master_craft_recipe", field: "requiredToken" }
+  drop_count_min: { from: "master_craft_recipe", field: "dropCountMin" }
+  drop_count_max: { from: "master_craft_recipe", field: "dropCountMax" }
+  reward_avatar_item_id: { from: "master_craft_recipe", field: "rewardAvatarItemId" }
+  conditional_recipe_skill_id: { from: "master_craft_recipe", field: "conditionalRecipeSkillId" }
+  exp: { from: "master_craft_recipe", field: "exp" }
+  reward_quest_id: { from: "master_craft_recipe", field: "rewardQuestId" }
+  conditional_facility_upgrade_id: { from: "master_craft_recipe", field: "conditionalFacilityUpgradeId" }
+
+  recipe_groups:
+    type: "list"
+    from: "master_craft_recipe_group"
+    link_key: { from: "master_craft_recipe", field: "craftRecipeId" }
+    sub_object:
+      group_id: { from_parent: true, field: "recipeGroupId" }
+      system_type: { from_parent: true, field: "systemType" }
+
+  materials:
+    type: "list"
+    from: "master_craft_material"
+    link_key: { from: "master_craft_recipe", field: "craftRecipeId" }
+    sub_object:
+      item_id: { from_parent: true, field: "itemId" }
+      item_category: { from_parent: true, field: "itemCategory" }
+      amount: { from_parent: true, field: "amount" }
+      reduce_durability: { from_parent: true, field: "reduceDurability" }
+      reduce_inclusion: { from_parent: true, field: "reduceInclusion" }
+
+  byproducts:
+    type: "list"
+    from: "master_craft_byproduct_drop"
+    link_key: { from: "master_craft_recipe", field: "byproductDropId" }
+    sub_object:
+      drop_group: { from_parent: true, field: "dropGroup" }
+      weight: { from_parent: true, field: "weight" }
+      item_id: { from_parent: true, field: "itemId" }
+      drop_min_amount: { from_parent: true, field: "dropMinAmount" }
+      drop_max_amount: { from_parent: true, field: "dropMaxAmount" }

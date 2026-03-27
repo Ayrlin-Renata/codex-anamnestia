@@ -119,6 +119,17 @@ def _apply_transform(value, rule, all_data):
         lookup_key = f"{value}{suffix}" if value is not None else None
         return target_source.get(lookup_key)
         
+    if transform_type == 'exclude_fields':
+        excluded = transform_rule.get('fields', [])
+        if not isinstance(value, dict):
+            logging.debug(f"Transform 'exclude_fields' expected a dictionary, but got {type(value)}. Skipping.")
+            return value
+        return {k: v for k, v in value.items() if k not in excluded}
+        
+    if transform_type == 'suffix':
+        suffix = transform_rule.get('value', '')
+        return f"{value}{suffix}" if value is not None else None
+        
     return value
 
 

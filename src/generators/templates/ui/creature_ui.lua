@@ -12,6 +12,14 @@ local function get_creature_util()
     return require("Module:Data/Creature/Util")
 end
 
+local function get_ui_common()
+    return require("Module:Data/Common/UI")
+end
+
+local function getText(L, key)
+    return get_ui_common().getText(L, key)
+end
+
 --[[ 
   Internal helper to render a single drop table.
 --]]
@@ -20,35 +28,36 @@ local function render_drop_table(creature_data, structured_drops, lang)
         return nil
     end
 
-    local creature_util = get_creature_util()
-    local display_name = creature_util.get_creature_display_name(creature_data, lang)
+    local common = get_ui_common()
+    local L = common.get_i18n(lang)
+    local display_name = common.get_display_name(creature_data, lang)
 
     local wikitext = {}
     table.insert(wikitext, '{| class="wikitable mw-collapsible he-droptable he-creature"')
     table.insert(wikitext, '|-')
-    table.insert(wikitext, '! colspan="2" style="font-size: 1.2em; background-color:var(--wiki-accent-color); color:var(--wiki-accent-label-color);" | ' .. display_name)
+    table.insert(wikitext, string.format('! colspan="2" style="font-size: 1.2em; background-color:var(--wiki-accent-color); color:var(--wiki-accent-label-color);" | %s', display_name))
     table.insert(wikitext, '|-')
-    table.insert(wikitext, '| ID:')
+    table.insert(wikitext, string.format('| %s:', getText(L, 'ID')))
     table.insert(wikitext, '| ' .. creature_data.id)
 
     for _, level_group in ipairs(structured_drops) do
         table.insert(wikitext, '|-')
-        table.insert(wikitext, '! colspan="2" | Level ' .. level_group.level_range)
+        table.insert(wikitext, string.format('! colspan="2" | %s %s', getText(L, 'Level'), level_group.level_range))
         table.insert(wikitext, '|-')
-        table.insert(wikitext, "| ''Mix/Max Drops''")
+        table.insert(wikitext, string.format("| ''%s''", getText(L, 'Mix/Max Drops')))
         table.insert(wikitext, "| ''" .. level_group.mix_drop .. "/" .. level_group.max_drop .. "''")
 
         for _, group in ipairs(level_group.groups) do
             table.insert(wikitext, '|-')
-            table.insert(wikitext, '! style="background-color:var(--wiki-content-background-color--secondary);" | Drop Group ' .. group.group_id)
+            table.insert(wikitext, string.format('! style="background-color:var(--wiki-content-background-color--secondary);" | %s %d', getText(L, 'Drop Group'), group.group_id))
             
             local items_text = {}
             for _, item in ipairs(group.drops) do
                 local item_display
                 if item.item_id == 0 then
-                    item_display = "None"
+                    item_display = getText(L, "None")
                 else
-                    item_display = string.format("[[%s|%s]]", item.name_en, item.name)
+                    item_display = common.get_link(item, lang)
                 end
 
                 local amount_str
@@ -83,8 +92,9 @@ local function render_spawner_table(creature_data, lang)
     for _ in pairs(creature_data.spawners) do has_spawners = true; break end
     if not has_spawners then return nil end
 
-    local creature_util = get_creature_util()
-    local display_name = creature_util.get_creature_display_name(creature_data, lang)
+    local common = get_ui_common()
+    local L = common.get_i18n(lang)
+    local display_name = common.get_display_name(creature_data, lang)
 
     local function has_elements(tbl)
         if type(tbl) ~= "table" then return false end
@@ -95,9 +105,9 @@ local function render_spawner_table(creature_data, lang)
     local wikitext = {}
     table.insert(wikitext, '{| class="wikitable mw-collapsible he-spawnertable he-creature"')
     table.insert(wikitext, '|-')
-    table.insert(wikitext, '! colspan="2" style="font-size: 1.2em; background-color:var(--wiki-accent-color); color:var(--wiki-accent-label-color);" | ' .. display_name)
+    table.insert(wikitext, string.format('! colspan="2" style="font-size: 1.2em; background-color:var(--wiki-accent-color); color:var(--wiki-accent-label-color);" | %s', display_name))
     table.insert(wikitext, '|-')
-    table.insert(wikitext, '| ID: || ' .. creature_data.id)
+    table.insert(wikitext, string.format('| %s: || %d', getText(L, 'ID'), creature_data.id))
 
     for i, s in ipairs(creature_data.spawners) do
         local levels = tostring(s.creature_min_level)
@@ -106,28 +116,28 @@ local function render_spawner_table(creature_data, lang)
         end
         
         local s_types = {}
-        if has_elements(s.static_territory) then table.insert(s_types, "Static") end
-        if has_elements(s.biome_territory) then table.insert(s_types, "Biome") end
-        if has_elements(s.summon_territory) then table.insert(s_types, "Summon") end
-        if has_elements(s.spawn_positions) then table.insert(s_types, "Point") end
+        if has_elements(s.static_territory) then table.insert(s_types, getText(L, "Static")) end
+        if has_elements(s.biome_territory) then table.insert(s_types, getText(L, "Biome")) end
+        if has_elements(s.summon_territory) then table.insert(s_types, getText(L, "Summon")) end
+        if has_elements(s.spawn_positions) then table.insert(s_types, getText(L, "Point")) end
         
         local s_type = #s_types > 0 and table.concat(s_types, " / ") or "Base"
         
         table.insert(wikitext, '|-')
-        table.insert(wikitext, string.format('! colspan="2" | Spawner %d (%s)', i, s_type))
+        table.insert(wikitext, string.format('! colspan="2" | %s %d (%s)', getText(L, "Spawner"), i, s_type))
         
         table.insert(wikitext, '|-')
-        table.insert(wikitext, "| ''Levels'' || ''" .. levels .. "''")
+        table.insert(wikitext, string.format("| ''%s'' || ''%s''", getText(L, "Levels"), levels))
         
         table.insert(wikitext, '|-')
-        table.insert(wikitext, "| ''Weight'' || ''" .. string.format("%.2f", s.weight or 0) .. "''")
+        table.insert(wikitext, string.format("| ''%s'' || ''%.2f''", getText(L, "Weight"), s.weight or 0))
         
         table.insert(wikitext, '|-')
-        table.insert(wikitext, "| ''Max Count'' || ''" .. (s.max_spawn_count or 0) .. "''")
+        table.insert(wikitext, string.format("| ''%s'' || ''%d''", getText(L, "Max Count"), s.max_spawn_count or 0))
         
         if s.spawn_interval and s.spawn_interval > 0 then
             table.insert(wikitext, '|-')
-            table.insert(wikitext, "| ''Interval'' || ''" .. s.spawn_interval .. "s''")
+            table.insert(wikitext, string.format("| ''%s'' || ''%ds''", getText(L, "Interval"), s.spawn_interval))
         end
         
         local weather_str = ""
@@ -139,7 +149,7 @@ local function render_spawner_table(creature_data, lang)
         end
         if weather_str ~= "" then
              table.insert(wikitext, '|-')
-             table.insert(wikitext, "| ''Weather Rules'' || ''" .. weather_str .. "''")
+             table.insert(wikitext, string.format("| ''%s'' || ''%s''", getText(L, "Weather Rules"), weather_str))
         end
         
         if has_elements(s.static_territory) then
@@ -218,8 +228,9 @@ function p.infobox(frame)
     end
 
     local util = get_util()
-    local lang = frame.args.lang or frame:getParent().args.lang or 'en'
-    lang = string.lower(lang)
+    local common = get_ui_common()
+    local lang = common.get_lang(frame)
+    local L = common.get_i18n(lang)
 
     local min_level = math.huge
     local max_level = 0
@@ -264,8 +275,8 @@ function p.infobox(frame)
         resistances_str = table.concat(res_list, "<br />")
     end
 
-    local name_en_val = creature_util.get_creature_display_name(creature_data, 'en')
-    local name_ja_val = creature_util.get_creature_display_name(creature_data, 'ja')
+    local name_en_val = common.get_display_name(creature_data, 'en')
+    local name_ja_val = common.get_display_name(creature_data, 'ja')
 
     local format_range = function(min_val, max_val)
         if not min_val and not max_val then return nil end
@@ -338,10 +349,10 @@ function p.infobox(frame)
 
     local infobox_args = {
         title = name_en_val,
-        Name = name_en_val,
-        ["JA Name"] = name_ja_val,
-        ID = creature_data.id,
-        ["Species ID"] = creature_data.species_id,
+        [getText(L, "Name")] = name_en_val,
+        ["Name (JA)"] = name_ja_val,
+        [getText(L, "ID")] = creature_data.id,
+        [getText(L, "Species ID")] = creature_data.species_id,
         Image = creature_data.image,
         Health = format_range(creature_data.min_health, creature_data.max_health),
         Weight = creature_data.weight,
@@ -361,8 +372,8 @@ function p.infobox(frame)
         Levels = levels_str,
         ["Spawner Types"] = spawner_types_str,
         Experience = format_range(creature_data.min_experience, creature_data.max_experience),
-        ["Observation Points"] = format_range(creature_data.min_observation_point, creature_data.max_observation_point),
-        ["Drop Items"] = drop_items_str
+        [getText(L, "Observation Points")] = format_range(creature_data.min_observation_point, creature_data.max_observation_point),
+        [getText(L, "Drop Items")] = drop_items_str
     }
 
     return frame:expandTemplate{ title = 'Infobox/Creature', args = infobox_args }
@@ -375,8 +386,9 @@ end
 function p.drops(frame)
     local util = get_util()
     local creature_util = get_creature_util()
+    local common = get_ui_common()
     local identifier = frame.args[1] or frame:getParent().args[1]
-    local lang = frame.args.lang or 'en'
+    local lang = common.get_lang(frame)
 
     if not identifier or identifier:match("^%s*$") then
         return "<strong class=\"error\">Error: No creature name or ID provided.</strong>"
@@ -412,11 +424,10 @@ end
 function p.alldrops(frame)
     local util = get_util()
     local creature_util = get_creature_util()
-    
+    local common = get_ui_common()
     local args = frame.args
-    local parent_args = frame:getParent() and frame:getParent().args or {}
-    local lang = args.lang or args[1] or parent_args.lang or parent_args[1] or 'en'
-    lang = string.lower(lang)
+    local p_args = (frame.getParent and frame:getParent()) and frame:getParent().args or {}
+    local lang = common.get_lang(frame)
 
     local raw_creatures = util.get_all_entries("/Creature.json")
 
@@ -573,11 +584,11 @@ function p.source_creatures(frame)
     local wikitext = {}
     table.insert(wikitext, '{| class="wikitable sortable he-droptable he-creature"')
     table.insert(wikitext, '|-')
-    table.insert(wikitext, '! colspan="3" style="font-size: 1.2em; background-color:var(--wiki-accent-color); color:var(--wiki-accent-label-color);" | ' .. (item_data['name_' .. lang] or item_data.name_en))
+    table.insert(wikitext, string.format('! colspan="3" style="font-size: 1.2em; background-color:var(--wiki-accent-color); color:var(--wiki-accent-label-color);" | %s', common.get_display_name(item_data, lang)))
     table.insert(wikitext, '|-')
-    table.insert(wikitext, '! Creature')
-    table.insert(wikitext, '! Level Range')
-    table.insert(wikitext, '! Drop Details')
+    table.insert(wikitext, string.format('! %s', getText(L, 'Creature')))
+    table.insert(wikitext, string.format('! %s', getText(L, 'Level Range')))
+    table.insert(wikitext, string.format('! %s', getText(L, 'Drop Details')))
 
     local sorted_ids = {}
     for id in pairs(rows_by_creature) do table.insert(sorted_ids, id) end

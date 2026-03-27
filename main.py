@@ -6,30 +6,13 @@ import json
 import logging
 
 from src.utils.config_loader import load_spec
-from src.transformers.standardizer import standardize_source
-from src.resolver import resolve_data
 from src.generators.lua_module_generator import generate_lua_modules
 from src.generators.json_map_generator import generate_json_maps
+from src.generators.changelog_generator import ChangelogGenerator
 from src.uploaders.wiki_uploader import WikiUploader
-from src.utils.archiver import archive_version_sources
+from src.utils.archiver import archive_version_sources, get_latest_archive
+from src.utils.pipeline_runner import PipelineRunner
 
-def get_extractor(type_name):
-    if type_name == 'local_file':
-        module_name = 'src.extractors.local_file_extractor'
-        class_name = 'LocalFileExtractor'
-    elif type_name == 'cdn':
-        module_name = 'src.extractors.cdn_extractor'
-        class_name = 'CdnExtractor'
-    else:
-        module_name = f"src.extractors.{type_name}_extractor"
-        class_name = f"{type_name.capitalize()}Extractor"
-    
-    try:
-        module = importlib.import_module(module_name)
-        return getattr(module, class_name)
-    except (ImportError, AttributeError) as e:
-        logging.error(f"Could not load extractor {class_name} from {module_name}: {e}")
-        raise
 
 def run_processing_pipeline(spec_name, action, global_config):
     logging.info(f"--- Running processing for '{spec_name}' ---")
@@ -39,72 +22,24 @@ def run_processing_pipeline(spec_name, action, global_config):
         logging.error(f"Specification '{spec_name}' not found or is empty.")
         return
 
-    # --- Stage 1: Extraction & Standardization ---
+    # --- Stage 1 & 2: Extraction, Standardization & Resolution ---
     all_data = {}
     resolved_objects = []
 
     if action in ['collect', 'resolve', 'generate-modules', 'full']:
-        logging.info("--- Stage 1: Starting Data Extraction & Standardization ---")
-        for source_spec in spec.get('sources', []):
-            source_name = source_spec['name']
-            source_type = source_spec['type']
-            
-            if source_type == 'manual':
-                raw_data = source_spec['data']
-            else:
-                try:
-                    ExtractorClass = get_extractor(source_type)
-                    extractor = ExtractorClass()
-                    # All extractors now receive global_config for standardization
-                    raw_data = extractor.extract(source_spec, global_config)
-                except Exception as e:
-                    logging.error(f"Failed to run extractor for type '{source_type}'. {e}")
-                    continue
-
-            all_data[source_name] = standardize_source(raw_data, source_spec)
-        logging.info("--- Stage 1: Finished ---")
+        runner = PipelineRunner(global_config)
+        all_data, resolved_objects = runner.run_spec(spec_name, skip_resolution=(action == 'collect'))
+        
         if action == 'collect': return
-
-    # --- Stage 2: Resolution ---
-    if action in ['resolve', 'generate-modules', 'full']:
-        logging.info("--- Stage 2: Starting Data Resolution ---")
-        resolution_strategy = spec.get('resolution_strategy', 'primary_source')
-        if resolution_strategy == 'union':
-            master_id_set = set()
-            for union_source in spec.get('union_sources', []):
-                source_name = union_source['name']
-                id_field = union_source['id_field']
-                source_data = all_data.get(source_name, {})
-                for item_or_list in source_data.values():
-                    if isinstance(item_or_list, list):
-                        for sub_item in item_or_list:
-                            item_id = sub_item.get(id_field)
-                            if item_id is not None: master_id_set.add(item_id)
-                    else:
-                        item_id = item_or_list.get(id_field)
-                        if item_id is not None: master_id_set.add(item_id)
-            logging.info(f"Found {len(master_id_set)} unique IDs for union.")
-            resolved_objects = resolve_data(spec, all_data, master_id_set)
-        else:
-            primary_source_name = spec.get('primary_source')
-            primary_data = all_data.get(primary_source_name, {})
-            # Flatten if primary source is group_by, though usually it's lookup
-            items_to_process = []
-            for item_or_list in primary_data.values():
-                if isinstance(item_or_list, list):
-                    items_to_process.extend(item_or_list)
-                else:
-                    items_to_process.append(item_or_list)
-            resolved_objects = resolve_data(spec, all_data, items_to_process)
-        logging.info("--- Stage 2: Finished ---")
-
+        
         if resolved_objects:
-            output_dir = "staging/output"
+            output_dir = "staging/outputs"
             os.makedirs(output_dir, exist_ok=True)
             output_path = os.path.join(output_dir, f"{spec_name}_resolved.json")
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(resolved_objects, f, indent=2, ensure_ascii=False)
             logging.info(f"Saved final resolved data to {output_path}")
+        
         if action == 'resolve': return
 
     # --- Stage 3: Module Generation ---
@@ -123,7 +58,7 @@ def run_processing_pipeline(spec_name, action, global_config):
         logging.info("--- Stage 3: Finished ---")
 
 def handle_historical_update(args, global_config):
-    config_path = 'historical_update_config.json'
+    config_path = 'configs/historical_update_config.yaml'
     
     # 1. Check if config exists
     if not os.path.exists(config_path):
@@ -131,13 +66,11 @@ def handle_historical_update(args, global_config):
         
         # Mirror local_data_paths from global_config
         local_paths = global_config.get('local_data_paths', {})
-        template = {
-            "_notice": "You can use %archive% to point to the source_archives directory. Example: %archive%/1.3.0.0__t.zip/survival",
-            "local_data_paths": {key: "" for key in local_paths.keys()}
-        }
         
         with open(config_path, 'w', encoding='utf-8') as f:
-            json.dump(template, f, indent=2)
+            f.write("# You can use %archive% to point to the source_archives directory.\n")
+            f.write("# Example: %archive%/1.3.0.0__t.zip/survival\n")
+            yaml.dump({"local_data_paths": {key: "" for key in local_paths.keys()}}, f, indent=2)
         
         print("\n" + "!"*60)
         print(f"!!! TEMPLATE GENERATED: {config_path}")
@@ -148,7 +81,7 @@ def handle_historical_update(args, global_config):
 
     # 2. Load config and override global_config
     with open(config_path, 'r', encoding='utf-8') as f:
-        update_config = json.load(f)
+        update_config = yaml.safe_load(f)
 
     logging.info(f"--- Running Historical Update for version {args.version} ---")
     global_config['is_historical'] = True
@@ -166,7 +99,7 @@ def handle_historical_update(args, global_config):
             logging.info(f"Overriding local_data_path '{key}' with: {global_config['local_data_paths'][key]}")
     
     # 3. Resolve specs to run
-    config_dir = 'configs'
+    config_dir = 'configs/specs'
     all_spec_names = [f.replace('.yaml', '') for f in os.listdir(config_dir) if f.endswith('.yaml')]
     if args.spec:
         spec_names = [args.spec]
@@ -202,14 +135,60 @@ def handle_historical_update(args, global_config):
 
     logging.info("--- Historical Update Pipeline finished ---")
 
+def run_changelog_task(args, global_config):
+    """Execution wrapper for ChangelogGenerator."""
+    # We need a version ONLY if we are doing a regular --changelog (auto-lookup)
+    # or if no other comparison method is specified.
+    can_proceed = args.version or args.changelog_historical or (args.changelog_v1 and args.changelog_v2)
+    
+    if not can_proceed:
+        logging.warning("Changelog: version, historical flag, or explicit v1/v2 paths are required.")
+        return
+
+    generator = ChangelogGenerator(global_config)
+    v1 = args.changelog_v1
+    v2 = args.changelog_v2
+    label_1 = v1 or "Unknown"
+    label_2 = v2 or "Current State"
+
+    if not v1:
+        if args.changelog_historical:
+            config_path = 'configs/historical_update_config.yaml'
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    v1 = yaml.safe_load(f)
+                label_1 = "Historical Config"
+            else:
+                logging.warning("Changelog: historical_update_config.yaml not found.")
+                return
+        else:
+            v1 = get_latest_archive(args.version)
+            if not v1:
+                logging.info(f"Changelog: No existing archives found for version {args.version}. Skipping.")
+                return
+            label_1 = os.path.basename(v1)
+
+    if not v2:
+        v2 = global_config
+        label_2 = "Current Local State"
+    
+    output_dir = "staging/outputs/changelog"
+    generator.generate(v1, v2, output_dir, label_1, label_2)
+
 def main():
     parser = argparse.ArgumentParser(description="Wiki Data Pipeline.")
     parser.add_argument('--spec', type=str, help='The name of the specification file to run.')
     parser.add_argument('--all-specs', action='store_true', help='Run the specified action for all spec files.')
-    parser.add_argument('--action', type=str, choices=['collect', 'resolve', 'generate-modules', 'upload', 'full', 'historical-update'], default='full', help='The action to perform.')
+    parser.add_argument('--action', type=str, choices=['collect', 'resolve', 'generate-modules', 'upload', 'full', 'historical-update', 'changelog'], default='full', help='The action to perform.')
     parser.add_argument('--upload-target', type=str, choices=['data', 'modules', 'maps', 'templates', 'all'], default='all', help="Specify what to upload.")
     parser.add_argument('--version', type=str, help='A specific version string (e.g., game version) for the upload.')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose logging output.')
+    
+    # Changelog arguments
+    parser.add_argument('--changelog', action='store_true', help='Generate a changelog between current state and last archive.')
+    parser.add_argument('--changelog-historical', action='store_true', help='Compare current state against historical_update_config.yaml.')
+    parser.add_argument('--changelog-v1', type=str, help='Override first comparison version (ZIP path or base directory).')
+    parser.add_argument('--changelog-v2', type=str, help='Override second comparison version (ZIP path or base directory).')
 
     args = parser.parse_args()
 
@@ -219,7 +198,8 @@ def main():
 
     # --- Config Loading ---
     try:
-        with open('codex_config.yaml', 'r') as f:
+        config_path = os.path.abspath('configs/codex_config.yaml')
+        with open(config_path, 'r') as f:
             global_config = yaml.safe_load(f)
     except FileNotFoundError:
         logging.error("codex_config.yaml not found. Please create it.")
@@ -230,6 +210,12 @@ def main():
             global_config['local_data_paths'][key] = os.path.expandvars(path)
 
     # --- Main Pipeline Execution ---
+    if args.action == 'changelog':
+        logging.info("--- Starting Dedicated Changelog Generation ---")
+        run_changelog_task(args, global_config)
+        logging.info("--- Pipeline finished ---")
+        return
+
     if args.action == 'historical-update':
         if not args.version:
             logging.error("'historical-update' requires a --version to be specified.")
@@ -239,26 +225,35 @@ def main():
 
     if args.action != 'upload':
         if args.all_specs:
-            config_dir = 'configs'
+            config_dir = 'configs/specs'
             all_specs = [f.replace('.yaml', '') for f in os.listdir(config_dir) if f.endswith('.yaml')]
             for spec_name in all_specs:
                 run_processing_pipeline(spec_name, args.action, global_config)
         elif args.spec:
             run_processing_pipeline(args.spec, args.action, global_config)
-        else:
+        elif not (args.changelog or args.changelog_historical or args.changelog_v1 or args.changelog_v2):
             parser.print_help()
             return
 
     # --- Upload Stage ---
     if args.action in ['upload', 'full']:
-        if not args.version:
+        if args.version:
+            logging.info("--- Stage 4: Starting Upload ---")
+            uploader = WikiUploader()
+            uploader.upload(args.upload_target, args.version, spec_name=args.spec)
+            logging.info("--- Stage 4: Finished ---")
+        elif not (args.changelog or args.changelog_historical or args.changelog_v1 or args.changelog_v2):
             logging.error("The 'upload' or 'full' action requires a --version to be specified.")
             return
-        
-        logging.info("--- Stage 4: Starting Upload ---")
-        uploader = WikiUploader()
-        uploader.upload(args.upload_target, args.version, spec_name=args.spec)
-        logging.info("--- Stage 4: Finished ---")
+        else:
+            logging.info("No version specified and changelog flags present. Skipping upload stage.")
+
+    # --- Changelog Stage ---
+    if (args.action == 'full' or args.changelog or args.changelog_historical or 
+        args.changelog_v1 or args.changelog_v2):
+        logging.info("--- Starting Automatic Changelog Generation ---")
+        run_changelog_task(args, global_config)
+        logging.info("--- Changelog Stage Finished ---")
 
     # --- Archival Stage ---
     if args.action in ['collect', 'resolve', 'generate-modules', 'full'] and args.version:

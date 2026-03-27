@@ -1,0 +1,51 @@
+# Specification for resolving cultivation recipes.
+
+sources:
+  - name: "master_cultivation"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_cultivation.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "seedItemId"
+
+  - name: "master_cultivation_drop_score"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_cultivation_drop_score.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "groupId"
+
+  - name: "master_cultivation_drop_lottery"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_cultivation_drop_lottery.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "groupId"
+
+primary_source: "master_cultivation"
+
+output_structure:
+  id: { from: "master_cultivation", field: "seedItemId" }
+  consume_durability: { from: "master_cultivation", field: "consumeDurability" }
+  growth_time: { from: "master_cultivation", field: "growthTime" }
+
+  drop_scores:
+    type: "list"
+    from: "master_cultivation_drop_score"
+    link_key: { from: "master_cultivation", field: "dropScoreGroupId" }
+    sub_object:
+      quality_score: { from_parent: true, field: "qualityScore" }
+      
+      # This is a nested list, linked from the parent drop_score object
+      drop_lottery:
+        type: "list"
+        from: "master_cultivation_drop_lottery"
+        link_key: { from_parent: true, field: "dropLotteryGroupId" }
+        sub_object:
+          item_id: { from_parent: true, field: "dropItemId" }
+          min_amount: { from_parent: true, field: "minDropAmount" }
+          max_amount: { from_parent: true, field: "maxDropAmount" }
+          lottery_weight: { from_parent: true, field: "lottery" }

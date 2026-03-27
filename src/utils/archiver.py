@@ -23,7 +23,7 @@ def archive_version_sources(version, global_config):
     os.makedirs(archive_dir, exist_ok=True)
     
     # 1. Collect all unique file sources from all specs
-    config_dir = 'configs'
+    config_dir = 'configs/specs'
     all_specs = [f.replace('.yaml', '') for f in os.listdir(config_dir) if f.endswith('.yaml')]
     
     file_mapping = {} # zip_rel_path -> abs_path
@@ -117,3 +117,25 @@ def archive_version_sources(version, global_config):
             for rel, abs_p in file_mapping.items():
                 z.write(abs_p, rel)
         logging.info("Archiver: Archival complete.")
+
+def get_latest_archive(version):
+    """Returns the path to the most recent archive for a version, or None."""
+    archive_dir = "source_archives"
+    if not os.path.exists(archive_dir):
+        return None
+        
+    # User requested to skip these specific manual additions
+    skip_substrings = ["1.3.0.0", "version__asarai"]
+    
+    existing_archives = []
+    for f in os.listdir(archive_dir):
+        if f.startswith(f"{version}__") and f.endswith(".zip"):
+            if any(skip in f for skip in skip_substrings):
+                continue
+            existing_archives.append(f)
+            
+    if not existing_archives:
+        return None
+        
+    existing_archives.sort(reverse=True)
+    return os.path.join(archive_dir, existing_archives[0])

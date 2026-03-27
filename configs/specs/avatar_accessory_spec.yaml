@@ -1,0 +1,256 @@
+# Specification for resolving avatar accessory items.
+resolution_strategy: "union"
+
+union_sources:
+  - { name: "avatarAccBags", id_field: "id" }
+  - { name: "avatarAccBelts", id_field: "id" }
+  - { name: "avatarAccCapes", id_field: "id" }
+  - { name: "avatarAccFaces", id_field: "id" }
+  - { name: "avatarAccGloves", id_field: "id" }
+  - { name: "avatarAccGlasss", id_field: "id" }
+  - { name: "avatarAccHeads", id_field: "id" }
+  - { name: "avatarAccMasks", id_field: "id" }
+  - { name: "avatarAccNecklaces", id_field: "id" }
+  - { name: "avatarAccOthers", id_field: "id" }
+  - { name: "avatarAccTops", id_field: "id" }
+  - { name: "avatarAccWaists", id_field: "id" }
+  - { name: "avatarContacts", id_field: "id" }
+
+sources:
+  - { name: "localizes", type: "cdn", path: "avatar_all", sub_key: "localizes", strategy: "lookup", key: "k" }
+  - { name: "avatarPartsDescriptions", type: "cdn", path: "avatar_all", sub_key: "avatarPartsDescriptions", strategy: "lookup", key: "k" }
+  
+  - { name: "avatarAccBags", type: "cdn", path: "avatar_all", sub_key: "avatarAccBags", strategy: "lookup", key: "id" }
+  - { name: "avatarAccBelts", type: "cdn", path: "avatar_all", sub_key: "avatarAccBelts", strategy: "lookup", key: "id" }
+  - { name: "avatarAccCapes", type: "cdn", path: "avatar_all", sub_key: "avatarAccCapes", strategy: "lookup", key: "id" }
+  - { name: "avatarAccFaces", type: "cdn", path: "avatar_all", sub_key: "avatarAccFaces", strategy: "lookup", key: "id" }
+  - { name: "avatarAccGloves", type: "cdn", path: "avatar_all", sub_key: "avatarAccGloves", strategy: "lookup", key: "id" }
+  - { name: "avatarAccGlasss", type: "cdn", path: "avatar_all", sub_key: "avatarAccGlasss", strategy: "lookup", key: "id" }
+  - { name: "avatarAccHeads", type: "cdn", path: "avatar_all", sub_key: "avatarAccHeads", strategy: "lookup", key: "id" }
+  - { name: "avatarAccMasks", type: "cdn", path: "avatar_all", sub_key: "avatarAccMasks", strategy: "lookup", key: "id" }
+  - { name: "avatarAccNecklaces", type: "cdn", path: "avatar_all", sub_key: "avatarAccNecklaces", strategy: "lookup", key: "id" }
+  - { name: "avatarAccOthers", type: "cdn", path: "avatar_all", sub_key: "avatarAccOthers", strategy: "lookup", key: "id" }
+  - { name: "avatarAccTops", type: "cdn", path: "avatar_all", sub_key: "avatarAccTops", strategy: "lookup", key: "id" }
+  - { name: "avatarAccWaists", type: "cdn", path: "avatar_all", sub_key: "avatarAccWaists", strategy: "lookup", key: "id" }
+  - { name: "avatarContacts", type: "cdn", path: "avatar_all", sub_key: "avatarContacts", strategy: "lookup", key: "id" }
+
+output_structure:
+  id: { from_context: "union_id" }
+  
+  detailType:
+    coalesce:
+      - { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "detailType" }
+
+  localizeKey:
+    coalesce:
+      - { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "localizeKey" }
+
+  localize_EN:
+    coalesce:
+      - { from: "localizes", link_key: { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+
+  localize_JA:
+    coalesce:
+      - { from: "localizes", link_key: { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "ja" } }
+      - { from: "localizes", link_key: { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+
+  description_EN:
+    coalesce:
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+
+  description_JA:
+    coalesce:
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+
+  assetPath:
+    coalesce:
+      - { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "assetPath" }
+
+  gender:
+    coalesce:
+      - { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "gender" }
+
+  rarity:
+    coalesce:
+      - { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "rarity" }
+
+  tribe:
+    coalesce:
+      - { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "tribe" }
+
+  sortKey:
+    coalesce:
+      - { from: "avatarAccBags", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccBelts", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccCapes", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccFaces", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccGloves", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccGlasss", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccHeads", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccMasks", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccNecklaces", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccOthers", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccTops", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarAccWaists", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarContacts", link_key: { from_context: "union_id" }, field: "sortKey" }
+
+  accessory_details:
+    coalesce:
+      - from: "avatarAccBags"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccBelts"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccCapes"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccFaces"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccGloves"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccGlasss"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccHeads"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccMasks"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccNecklaces"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccOthers"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccTops"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarAccWaists"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarContacts"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }

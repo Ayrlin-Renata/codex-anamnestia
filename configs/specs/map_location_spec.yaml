@@ -1,0 +1,131 @@
+# Specification for resolving map location data.
+
+sources:
+  - name: "master_creature_spawner"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_spawner.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "id"
+
+  - name: "master_creature"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "creatureId"
+
+  - name: "master_text_EN"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_text_EN.dat"
+    decoder: "decode_survival_dat"
+
+  - name: "master_creature_spawner_creatures"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_spawner_creatures.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "spawnerId"
+
+  - name: "master_creature_spawner_spawn_positions"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_creature_spawner_spawn_positions.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "spawnerId"
+
+  - name: "master_static_territory"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_static_territory.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureSpawnerId"
+
+  - name: "master_biome_territory"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_biome_territory.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureSpawnerId"
+
+  - name: "master_summon_territory"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_summon_territory.dat"
+    decoder: "decode_survival_dat"
+    strategy: "group_by"
+    key: "creatureSpawnerId"
+
+primary_source: "master_creature_spawner"
+
+output_structure:
+  spawner_id: { from: "master_creature_spawner", field: "id" }
+
+  creatures:
+    type: "list"
+    from: "master_creature_spawner_creatures"
+    link_key: { from: "master_creature_spawner", field: "id" }
+    sub_object:
+      creature_id: { from_parent: true, field: "creatureId" }
+      min_level: { from_parent: true, field: "creatureMinLevel" }
+      max_level: { from_parent: true, field: "creatureMaxLevel" }
+      name_en:
+        from: "master_text_EN"
+        link_key:
+          from: "master_creature"
+          field: "nameKey"
+          link_key: { from_parent: true, field: "creatureId" }
+
+  spawn_positions:
+    type: "list"
+    from: "master_creature_spawner_spawn_positions"
+    link_key: { from: "master_creature_spawner", field: "id" }
+    sub_object:
+      x: { from_parent: true, field: "positionX"}
+      y: { from_parent: true, field: "positionY"}
+      z: { from_parent: true, field: "positionZ"}
+
+  static_territory:
+    type: "list"
+    from: "master_static_territory"
+    link_key: { from: "master_creature_spawner", field: "id" }
+    sub_object:
+      world_type: { from_parent: true, field: "worldType"}
+      x: { from_parent: true, field: "positionX"}
+      y: { from_parent: true, field: "positionY"}
+      z: { from_parent: true, field: "positionZ"}
+      detection_distance: { from_parent: true, field: "detectionDistance"}
+      lost_distance: { from_parent: true, field: "lostDistance"}
+      limit_distance: { from_parent: true, field: "limitDistance"}
+
+  biome_territory:
+    type: "list"
+    from: "master_biome_territory"
+    link_key: { from: "master_creature_spawner", field: "id" }
+    sub_object:
+      world_type: { from_parent: true, field: "worldType"}
+      biome_ids:
+        from_parent: true
+        field: "biomeIds"
+        transform:
+          type: "split"
+          delimiter: ","
+          as_type: "int"
+
+  summon_territory:
+    type: "list"
+    from: "master_summon_territory"
+    link_key: { from: "master_creature_spawner", field: "id" }
+    sub_object:
+      system_type: { from_parent: true, field: "systemType"}
+      battle_limit_time: { from_parent: true, field: "battleLimitTime"}
+      detection_distance: { from_parent: true, field: "detectionDistance"}
+      lost_distance: { from_parent: true, field: "lostDistance"}
+      limit_distance: { from_parent: true, field: "limitDistance"}

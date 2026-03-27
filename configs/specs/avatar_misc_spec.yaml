@@ -1,0 +1,19 @@
+# Specification for resolving miscellaneous avatar data
+resolution_strategy: "singleton"
+
+sources:
+  - { name: "areaTags", type: "cdn", path: "avatar_all", sub_key: "areaTags" }
+  - { name: "keyVals", type: "cdn", path: "avatar_all", sub_key: "keyVals" }
+  - { name: "avatarDressupCategorys", type: "cdn", path: "avatar_all", sub_key: "avatarDressupCategorys" }
+  - { name: "avatarCreateModeEnvironments", type: "cdn", path: "avatar_all", sub_key: "avatarCreateModeEnvironments" }
+  - { name: "avatarPartsThumbnails", type: "cdn", path: "avatar_all", sub_key: "avatarPartsThumbnails" }
+
+output_structure:
+  data:
+    type: "object"
+    fields:
+      areaTags: { type: "list", from: "areaTags" }
+      keyVals: { type: "list", from: "keyVals" }
+      avatarDressupCategorys: { type: "list", from: "avatarDressupCategorys" }
+      avatarCreateModeEnvironments: { type: "list", from: "avatarCreateModeEnvironments" }
+      avatarPartsThumbnails: { type: "list", from: "avatarPartsThumbnails" }

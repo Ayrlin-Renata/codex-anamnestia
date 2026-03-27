@@ -1,0 +1,14 @@
+<includeonly>{{#invoke:Infobox|main
+|kind=fashionitem
+|title={{{title|}}}
+|sep=,
+|image={{#if:{{{Image|}}}|[[File:{{{Image}}}{{!}}250px]]}}
+|sections=Info, Clothing, Accessory, Hiding, About
+|Info=Name (EN),Name (JA),ID,Rarity,Tribe,Gender
+|Clothing=Clothing Type,Sleeve Length,Sleeve Width,Underwear ID
+|Accessory=Accessory Type,Socket
+|Hiding=Hide Hair (F/M/B),Hide Cloth (B/S/S)
+|About=Description
+}}</includeonly><noinclude>
+[[Category: Infobox template]]
+{{documentation}}</noinclude>

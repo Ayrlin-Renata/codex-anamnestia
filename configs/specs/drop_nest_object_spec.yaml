@@ -1,0 +1,20 @@
+# Specification for resolving drop items from nest objects.
+
+sources:
+  - name: "master_dropitem_for_nest_object"
+    type: "local_file"
+    path_type: "survival"
+    path: "master_dropitem_for_nest_object.dat"
+    decoder: "decode_survival_dat"
+    strategy: "lookup"
+    key: "dropId"
+
+primary_source: "master_dropitem_for_nest_object"
+
+output_structure:
+  id: { from: "master_dropitem_for_nest_object", field: "dropId" }
+  drop_group: { from: "master_dropitem_for_nest_object", field: "dropGroup" }
+  item_id: { from: "master_dropitem_for_nest_object", field: "itemId" }
+  drop_min_amount: { from: "master_dropitem_for_nest_object", field: "dropMinAmount" }
+  drop_max_amount: { from: "master_dropitem_for_nest_object", field: "dropMaxAmount" }
+  weight: { from: "master_dropitem_for_nest_object", field: "weight" }

@@ -1,7 +1,0 @@
-{
-  "_notice": "You can use %archive% to point to the source_archives directory. Example: %archive%/1.3.0.0__t.zip/survival",
-  "local_data_paths": {
-    "survival": "",
-    "manual": ""
-  }
-}

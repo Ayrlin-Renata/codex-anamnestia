@@ -1,0 +1,94 @@
+# This file maps local Lua module files to their destination on the wiki.
+
+history_prefix: "/History"
+meta_page: "/meta.json"
+
+wiki:
+  host: "holoearth.wiki.gg"
+  path: "/"
+  upload_delay: 2
+
+shared_modules:
+  - utils.lua
+  - ui_common.lua
+  - fashion_common.lua
+  - link_common.lua
+
+shared_templates:
+  - Infobox.wikitext
+  - Infobox_FashionItem.wikitext
+
+module_groups:
+  - prefix: "Template:"
+    staging_dir: "staging/wikitemplates"
+    modules:
+      Infobox.wikitext: "Infobox"
+      Infobox_Creature.wikitext: "Infobox/Creature"
+      Infobox_Item.wikitext: "Infobox/Item"
+      Infobox_FashionItem.wikitext: "Infobox/FashionItem"
+  - prefix: "Module:Data"
+    modules:
+      utils.lua: "/Utils"
+      creature_util.lua: "/Creature/Util"
+      creature_ui.lua: "/Creature/UI"
+      item_util.lua: "/Item/Util"
+      item_ui.lua: "/Item/UI"
+      ui_common.lua: "/Common/UI"
+      link_common.lua: "/Common/Link"
+      fashion_common.lua: "/Common/Fashion"
+      avatar_clothing_util.lua: "/ClothingItem/Util"
+      avatar_clothing_ui.lua: "/ClothingItem/UI"
+      avatar_accessory_util.lua: "/AccessoryItem/Util"
+      avatar_accessory_ui.lua: "/AccessoryItem/UI"
+
+maps:
+  - file: "survival_icons.json"
+    page: "Map:Survival_Icons"
+  - file: "simulation_room.json"
+    page: "Map:Simulation_Room"
+
+data:
+  creature_spec_resolved.json:
+    page: "/Creature.json"
+    history: "timestamped"
+  drop_creature_spec_resolved.json:
+    page: "/Drop_Creature.json"
+    history: "timestamped"
+  drop_harvestable_object_spec_resolved.json:
+    page: "/Drop_Harvestable_Object.json"
+    history: "timestamped"
+  drop_object_nest_spec_resolved.json:
+    page: "/Drop_Object_Nest.json"
+    history: "timestamped"
+  drop_object_breakable_spec_resolved.json:
+    page: "/Drop_Object_Breakable.json"
+    history: "timestamped"
+  element_spec_resolved.json: "/Element.json"
+  facility_spec_resolved.json: "/Facility.json"
+  item_spec_resolved.json:
+    page: "/Item.json"
+    history: "timestamped"
+  mood_spec_resolved.json: "/Mood.json"
+  object_breakable_spec_resolved.json: "/Object_Breakable.json"
+  object_harvestable_spec_resolved.json: "/Object_Harvestable.json"
+  avatar_clothing_spec_resolved.json:
+    page: "/Clothing_Items.json"
+    history: "timestamped"
+  avatar_accessory_spec_resolved.json:
+    page: "/Accessory_Items.json"
+    history: "timestamped"
+  avatar_parts_spec_resolved.json:
+    page: "/Avatar_Parts.json"
+    history: "timestamped"
+  avatar_mannequins_spec_resolved.json:
+    page: "/Avatar_Mannequins.json"
+    history: "timestamped"
+  avatar_shop_spec_resolved.json:
+    page: "/Avatar_Shop.json"
+    history: "timestamped"
+  avatar_misc_spec_resolved.json:
+    page: "/Avatar_Misc.json"
+    history: "timestamped"
+  recipe_craft_spec_resolved.json: "/Recipe_Craft.json"
+  recipe_cultivation_spec_resolved.json: "/Recipe_Cultivation.json"
+  recipe_smelt_spec_resolved.json: "/Recipe_Smelt.json"

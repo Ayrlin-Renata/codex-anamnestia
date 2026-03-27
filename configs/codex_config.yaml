@@ -1,0 +1,9 @@
+# Global configuration for the codex-anamnestia data pipeline.
+
+# Base paths for different types of local data sources.
+# Please use absolute paths.
+avatar_url: "https://cdn.holoearth.com/avatar/"
+local_data_paths:
+  survival: "%userprofile%/AppData/LocalLow/Cover/Holoearth/1" 
+  manual: "data/manual"
+  cdn: "data/web_avatar"

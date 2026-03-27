@@ -1,0 +1,17 @@
+# Specification for resolving element data from manual sources.
+
+sources:
+  - name: "element_names"
+    type: "local_file"
+    path_type: "manual"
+    path: "element_names.json"
+    decoder: "decode_json"
+    strategy: "lookup"
+    key: "id"
+
+primary_source: "element_names"
+
+output_structure:
+  id: { from: "element_names", field: "id" }
+  name_en: { from: "element_names", field: "name_en" }
+  name_ja: { from: "element_names", field: "name_ja" }

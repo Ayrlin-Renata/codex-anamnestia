@@ -1,0 +1,144 @@
+# Specification for resolving avatar clothing items.
+resolution_strategy: "union"
+
+union_sources:
+  - { name: "avatarClothBottoms", id_field: "id" }
+  - { name: "avatarClothOuters", id_field: "id" }
+  - { name: "avatarClothShoes", id_field: "id" }
+  - { name: "avatarClothSocks", id_field: "id" }
+  - { name: "avatarClothTops", id_field: "id" }
+  - { name: "avatarClothUnderwears", id_field: "id" }
+
+sources:
+  - { name: "localizes", type: "cdn", path: "avatar_all", sub_key: "localizes", strategy: "lookup", key: "k" }
+  - { name: "avatarPartsDescriptions", type: "cdn", path: "avatar_all", sub_key: "avatarPartsDescriptions", strategy: "lookup", key: "k" }
+  
+  - { name: "avatarClothBottoms", type: "cdn", path: "avatar_all", sub_key: "avatarClothBottoms", strategy: "lookup", key: "id" }
+  - { name: "avatarClothOuters", type: "cdn", path: "avatar_all", sub_key: "avatarClothOuters", strategy: "lookup", key: "id" }
+  - { name: "avatarClothShoes", type: "cdn", path: "avatar_all", sub_key: "avatarClothShoes", strategy: "lookup", key: "id" }
+  - { name: "avatarClothSocks", type: "cdn", path: "avatar_all", sub_key: "avatarClothSocks", strategy: "lookup", key: "id" }
+  - { name: "avatarClothTops", type: "cdn", path: "avatar_all", sub_key: "avatarClothTops", strategy: "lookup", key: "id" }
+  - { name: "avatarClothUnderwears", type: "cdn", path: "avatar_all", sub_key: "avatarClothUnderwears", strategy: "lookup", key: "id" }
+
+output_structure:
+  id: { from_context: "union_id" }
+  
+  detailType:
+    coalesce:
+      - { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "detailType" }
+      - { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "detailType" }
+
+  localizeKey:
+    coalesce:
+      - { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "localizeKey" }
+      - { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "localizeKey" }
+
+  localize_EN:
+    coalesce:
+      - { from: "localizes", link_key: { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+      - { from: "localizes", link_key: { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "en" }
+
+  localize_JA:
+    coalesce:
+      - { from: "localizes", link_key: { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+      - { from: "localizes", link_key: { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "localizeKey" }, field: "ja" }
+
+  description_EN:
+    coalesce:
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "en" }
+
+  description_JA:
+    coalesce:
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+      - { from: "avatarPartsDescriptions", link_key: { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "localizeKey", transform: { type: "suffix", value: "_DESC" } }, field: "ja" }
+
+  assetPath:
+    coalesce:
+      - { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "assetPath" }
+      - { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "assetPath" }
+
+  gender:
+    coalesce:
+      - { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "gender" }
+      - { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "gender" }
+
+  rarity:
+    coalesce:
+      - { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "rarity" }
+      - { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "rarity" }
+
+  tribe:
+    coalesce:
+      - { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "tribe" }
+      - { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "tribe" }
+
+  sortKey:
+    coalesce:
+      - { from: "avatarClothBottoms", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarClothOuters", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarClothShoes", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarClothSocks", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarClothTops", link_key: { from_context: "union_id" }, field: "sortKey" }
+      - { from: "avatarClothUnderwears", link_key: { from_context: "union_id" }, field: "sortKey" }
+
+  clothing_details:
+    coalesce:
+      - from: "avatarClothBottoms"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarClothOuters"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarClothShoes"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarClothSocks"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarClothTops"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }
+      - from: "avatarClothUnderwears"
+        link_key: { from_context: "union_id" }
+        transform: { type: "exclude_fields", fields: ["id", "detailType", "localizeKey", "assetPath", "gender", "rarity", "tribe", "sortKey"] }

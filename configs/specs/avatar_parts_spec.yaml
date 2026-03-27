@@ -1,0 +1,85 @@
+# Specification for resolving avatar body parts
+resolution_strategy: "singleton"
+
+sources:
+  - { name: "localizes", type: "cdn", path: "avatar_all", sub_key: "localizes", strategy: "lookup", key: "k" }
+  - { name: "avatarCheeks", type: "cdn", path: "avatar_all", sub_key: "avatarCheeks" }
+  - { name: "avatarEyebrows", type: "cdn", path: "avatar_all", sub_key: "avatarEyebrows" }
+  - { name: "avatarEyes", type: "cdn", path: "avatar_all", sub_key: "avatarEyes" }
+  - { name: "avatarEyeColors", type: "cdn", path: "avatar_all", sub_key: "avatarEyeColors" }
+  - { name: "avatarEyeshadows", type: "cdn", path: "avatar_all", sub_key: "avatarEyeshadows" }
+  - { name: "avatarFaces", type: "cdn", path: "avatar_all", sub_key: "avatarFaces" }
+  - { name: "avatarHairBacks", type: "cdn", path: "avatar_all", sub_key: "avatarHairBacks", strategy: "lookup", key: "id" }
+  - { name: "avatarHairFronts", type: "cdn", path: "avatar_all", sub_key: "avatarHairFronts", strategy: "lookup", key: "id" }
+  - { name: "avatarHairMiddles", type: "cdn", path: "avatar_all", sub_key: "avatarHairMiddles", strategy: "lookup", key: "id" }
+  - { name: "avatarHairSets", type: "cdn", path: "avatar_all", sub_key: "avatarHairSets" }
+  - { name: "avatarLips", type: "cdn", path: "avatar_all", sub_key: "avatarLips" }
+  - { name: "avatarPaints", type: "cdn", path: "avatar_all", sub_key: "avatarPaints" }
+  - { name: "avatarPupils", type: "cdn", path: "avatar_all", sub_key: "avatarPupils" }
+  - { name: "avatarRampHairColors", type: "cdn", path: "avatar_all", sub_key: "avatarRampHairColors" }
+  - { name: "avatarRampSkinColors", type: "cdn", path: "avatar_all", sub_key: "avatarRampSkinColors" }
+  - { name: "avatarVoiceTypes", type: "cdn", path: "avatar_all", sub_key: "avatarVoiceTypes" }
+  - { name: "avatarTypes", type: "cdn", path: "avatar_all", sub_key: "avatarTypes" }
+  - { name: "avatarPresets", type: "cdn", path: "avatar_all", sub_key: "avatarPresets" }
+
+output_structure:
+  avatar:
+    type: "object"
+    fields:
+      avatarCheeks:
+        type: "list"
+        from: "avatarCheeks"
+        sub_object: &avatar_part_obj
+          id: { from_parent: true, field: "id" }
+          localizeKey: { from_parent: true, field: "localizeKey" }
+          localize_EN: { from: "localizes", link_key: { from_parent: true, field: "localizeKey" }, field: "en" }
+          localize_JA: { from: "localizes", link_key: { from_parent: true, field: "localizeKey" }, field: "ja" }
+          assetPath: { from_parent: true, field: "assetPath" }
+          gender: { from_parent: true, field: "gender" }
+          rarity: { from_parent: true, field: "rarity" }
+          sortKey: { from_parent: true, field: "sortKey" }
+          tribe: { from_parent: true, field: "tribe" }
+      avatarEyebrows: { type: "list", from: "avatarEyebrows", sub_object: *avatar_part_obj }
+      avatarEyes: { type: "list", from: "avatarEyes", sub_object: *avatar_part_obj }
+      avatarEyeColors: { type: "list", from: "avatarEyeColors", sub_object: *avatar_part_obj }
+      avatarEyeshadows: { type: "list", from: "avatarEyeshadows", sub_object: *avatar_part_obj }
+      avatarFaces: { type: "list", from: "avatarFaces", sub_object: *avatar_part_obj }
+      avatarHairBacks: { type: "list", from: "avatarHairBacks", sub_object: *avatar_part_obj }
+      avatarHairFronts: { type: "list", from: "avatarHairFronts", sub_object: *avatar_part_obj }
+      avatarHairMiddles: { type: "list", from: "avatarHairMiddles", sub_object: *avatar_part_obj }
+      avatarHairSets:
+        type: "list"
+        from: "avatarHairSets"
+        sub_object:
+          id: { from_parent: true, field: "id" }
+          avatarHairBackId: { from_parent: true, field: "avatarHairBackId" }
+          avatarHairFrontId: { from_parent: true, field: "avatarHairFrontId" }
+          avatarHairMiddleId: { from_parent: true, field: "avatarHairMiddleId" }
+          gender: { from_parent: true, field: "gender" }
+          sortKey: { from_parent: true, field: "sortKey" }
+          tribe: { from_parent: true, field: "tribe" }
+      avatarLips: { type: "list", from: "avatarLips", sub_object: *avatar_part_obj }
+      avatarPaints: { type: "list", from: "avatarPaints", sub_object: *avatar_part_obj }
+      avatarPupils: { type: "list", from: "avatarPupils", sub_object: *avatar_part_obj }
+      avatarRampHairColors: { type: "list", from: "avatarRampHairColors", sub_object: *avatar_part_obj }
+      avatarRampSkinColors: { type: "list", from: "avatarRampSkinColors", sub_object: *avatar_part_obj }
+      avatarVoiceTypes: { type: "list", from: "avatarVoiceTypes", sub_object: *avatar_part_obj }
+      avatarTypes:
+        type: "list"
+        from: "avatarTypes"
+        sub_object:
+          id: { from_parent: true, field: "id" }
+          assetPath: { from_parent: true, field: "assetPath" }
+          gender: { from_parent: true, field: "gender" }
+          rarity: { from_parent: true, field: "rarity" }
+          sortKey: { from_parent: true, field: "sortKey" }
+          tribe: { from_parent: true, field: "tribe" }
+      avatarPresets:
+        type: "list"
+        from: "avatarPresets"
+        sub_object:
+          id: { from_parent: true, field: "id" }
+          avatarType: { from_parent: true, field: "avatarType" }
+          presetName: { from_parent: true, field: "presetName" }
+          gender: { from_parent: true, field: "gender" }
+          sortKey: { from_parent: true, field: "sortKey" }

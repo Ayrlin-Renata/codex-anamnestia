@@ -1,0 +1,52 @@
+# Rules for wiki link resolution and cross-category disambiguation.
+# 'context' should match the source mapping or item type.
+# postfix: string added to the link target.
+# variant_regexes: patterns to strip suffixes for base page grouping.
+# variant_exclude: specific strings within parentheses that should NOT be stripped.
+
+rules:
+  - context: "clothing"
+    postfix: " (Fashion Item)"
+    variant_regexes:
+      - "( ?[%(%[（]([A-Z][a-z][a-z]?)[%)%]）])$"
+      - "( ?[%(%[（]([A-Z][a-z]+[A-Z][a-z]+)[%)%]）])$"
+      - "( ?[%(%[（]([ァ-ヶー一-龠×]+)[%)%]）])$"
+      - "( ?%[(([A-Z][0-9]+))%])$"
+    variant_exclude:
+      - "インフルエンサー"
+      - "ルティ"
+      - "レティ"
+      - "ロティ"
+      - "Influencer"
+      
+  - context: "accessory"
+    postfix: " (Fashion Item)"
+    variant_regexes:
+      - "( ?[%(%[（]([A-Z][a-z][a-z]?)[%)%]）])$"
+      - "( ?[%(%[（]([A-Z][a-z]+[A-Z][a-z]+)[%)%]）])$"
+      - "( ?[%(%[（]([ァ-ヶー一-龠×]+)[%)%]）])$"
+      - "( ?%[(([A-Z][0-9]+))%])$"
+    variant_exclude:
+      - "インフルエンサー"
+      - "ルティ"
+      - "レティ"
+      - "ロティ"
+      - "Influencer"
+
+  - context: "creature"
+    postfix: ""
+
+  - context: "item"
+    variant_regexes:
+      - "( ?[%(%[（]([A-Z][a-z][a-z]?)[%)%]）])$"
+      - "( ?[%(%[（]([A-Z][a-z]+[A-Z][a-z]+)[%)%]）])$"
+      - "( ?[%(%[（]([ァ-ヶー一-龠×]+)[%)%]）])$"
+      - "( ?([SML]))$"
+      - "( ?([ABCDEF]))$"
+      - "( ?(Lv %d+))$"
+    variant_exclude:
+      - "インフルエンサー"
+      - "ルティ"
+      - "レティ"
+      - "ロティ"
+      - "Influencer"

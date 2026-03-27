@@ -2,43 +2,10 @@ local p = {}
 
 local function get_util() return require("Module:Data/Utils") end
 local function get_item_util() return require("Module:Data/Item/Util") end
+local function get_ui_common() return require("Module:Data/Common/UI") end
 
-local i18n = {
-    EN = {
-        ['Yes'] = 'Yes',
-        ['No'] = 'No',
-        ['Item ID'] = 'Item ID', ['Item Name'] = 'Item Name', ['Description'] = 'Description',
-        ['Category'] = 'Category', ['Sort ID'] = 'Sort ID', ['Item Rank'] = 'Item Rank',
-        ['Stack Limit'] = 'Stack Limit', ['Weight'] = 'Weight', ['Durability'] = 'Durability',
-        ['Freshness'] = 'Freshness', ['Changes To'] = 'Changes To', ['Attack Power'] = 'Attack Power',
-        ['Defense'] = 'Defense', ['Magic Defense'] = 'Magic Defense', ['Breaking Power'] = 'Breaking Power',
-        ['Food Points'] = 'Food Points', ['Water Points'] = 'Water Points', ['Cooldown'] = 'Cooldown',
-        ['Weapon Type'] = 'Weapon Type', ['Armor Type'] = 'Armor Type', ['Accessory Type'] = 'Accessory Type',
-        ['Tool Type'] = 'Tool Type', ['Loses When Broken'] = 'Loses When Broken', ['HP'] = 'HP',
-        ['Physics Defense'] = 'Physics Defense', ['Mood Type'] = 'Mood Type', ['Mood Points'] = 'Mood Points',
-        ['Vehicle ID'] = 'Vehicle ID', ['Fuel Duration'] = 'Fuel Duration', ['Casting ID'] = 'Casting ID',
-        ['Guide ID'] = 'Guide ID',
-    },
-    JA = {
-        ['Yes'] = 'はい',
-        ['No'] = 'いいえ',
-        ['Item ID'] = 'アイテムID', ['Item Name'] = 'アイテム名', ['Description'] = '説明',
-        ['Category'] = 'カテゴリー', ['Sort ID'] = 'ソートID', ['Item Rank'] = 'アイテムランク',
-        ['Stack Limit'] = 'スタック上限', ['Weight'] = '重量', ['Durability'] = '耐久値',
-        ['Freshness'] = '鮮度', ['Changes To'] = '変化先', ['Attack Power'] = '攻撃力',
-        ['Defense'] = '防御力', ['Magic Defense'] = '魔法防御力', ['Breaking Power'] = '破壊力',
-        ['Food Points'] = '食料ポイント', ['Water Points'] = '水分ポイント', ['Cooldown'] = 'クールダウン',
-        ['Weapon Type'] = '武器タイプ', ['Armor Type'] = '防具タイプ', ['Accessory Type'] = 'アクセサリータイプ',
-        ['Tool Type'] = '道具タイプ', ['Loses When Broken'] = '破損時消失', ['HP'] = 'HP',
-        ['Physics Defense'] = '物理防御', ['Mood Type'] = 'ムードタイプ', ['Mood Points'] = 'ムードポイント',
-        ['Vehicle ID'] = '乗り物ID', ['Fuel Duration'] = '燃料期間', ['Casting ID'] = 'キャストID',
-        ['Guide ID'] = 'ガイドID',
-    }
-}
-
-local function getLang(frame)
-    local langCode = frame.args.lang and frame.args.lang:upper()
-    return i18n[langCode] and langCode or 'EN'
+local function getText(L, key)
+    return get_ui_common().getText(L, key)
 end
 
 local function is_empty(t)
@@ -122,33 +89,13 @@ local function format_item_link(item_id, lang)
     local target_item = item_util.get_item_by_name_or_id(item_id)
     if not target_item then return tostring(item_id) end
     
-    local nameEN = target_item.name_en or ''
-    local nameJA = target_item.name_ja or ''
-    
-    if lang == 'JA' then
-        if nameEN ~= '' and nameJA ~= '' then
-            return '[[' .. nameEN .. '|' .. nameJA .. ']]'
-        elseif nameJA ~= '' then
-            return nameJA 
-        elseif nameEN ~= '' then
-            return '[[' .. nameEN .. ']]'
-        end
-    else
-        if nameEN ~= '' then
-            return '[[' .. nameEN .. ']]'
-        end
-    end
-    return tostring(item_id)
-end
-
-local function getText(L, key)
-    if not L then return key end
-    return L[key] or key
+    return get_ui_common().get_link(target_item, lang, nil, "item")
 end
 
 function p.infobox(frame)
-    local lang = getLang(frame)
-    local L = i18n[lang]
+    local common = get_ui_common()
+    local lang = common.get_lang(frame)
+    local L = common.get_i18n(lang)
     
     local identifier = frame.args[1]
     if not identifier or identifier == '' then
@@ -232,7 +179,7 @@ function p.infobox(frame)
 
     local lose_broken_text = nil
     if details.lose_broken_item ~= nil then
-        lose_broken_text = (details.lose_broken_item == 1 or details.lose_broken_item == '1') and L['Yes'] or L['No']
+        lose_broken_text = (details.lose_broken_item == 1 or details.lose_broken_item == '1') and getText(L, 'Yes') or getText(L, 'No')
     end
 
     local args = {
@@ -296,8 +243,9 @@ function p.all(frame)
     local all_items = util.get_all_entries("/Item.json")
     if not all_items then return "''Error: No items found.''" end
 
-    local lang = getLang(frame)
-    local L = i18n[lang]
+    local common = get_ui_common()
+    local lang = common.get_lang(frame)
+    local L = common.get_i18n(lang)
 
     local lines = {}
     table.insert(lines, '{| class="wikitable sortable"')
@@ -310,7 +258,7 @@ function p.all(frame)
     }
     local header_cells = {}
     for _, colName in ipairs(columns) do
-        table.insert(header_cells, '! ' .. L[colName])
+        table.insert(header_cells, '! ' .. getText(L, colName))
     end
     table.insert(lines, '|-')
     table.insert(lines, table.concat(header_cells, '\n'))
@@ -320,21 +268,7 @@ function p.all(frame)
         local details = get_primary_details(details_list)
         local nameEN = (item.name_en or ''):gsub("[\n\r]", "")
         local nameJA = (item.name_ja or ''):gsub("[\n\r]", "")
-        local nameCell = '|'
-        
-        if lang == 'JA' then
-            if nameEN ~= '' and nameJA ~= '' then
-                nameCell = '| [[' .. nameEN .. '|' .. nameJA .. ']]'
-            elseif nameJA ~= '' then
-                nameCell = '| ' .. nameJA
-            elseif nameEN ~= '' then
-                nameCell = '| [[' .. nameEN .. ']]'
-            end
-        else
-            if nameEN ~= '' then
-                nameCell = '| [[' .. nameEN .. ']]'
-            end
-        end
+        local nameCell = '| ' .. common.get_link(item, lang, nil, "item")
 
         local category_field = 'category_name_' .. string.lower(lang)
         local category = item[category_field] or item.category_name_en or ''
