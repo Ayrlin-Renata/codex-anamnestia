@@ -1,0 +1,13 @@
+# Specification for resolving avatar shop settings
+resolution_strategy: "singleton"
+
+sources:
+  - { name: "editCostGroups", type: "cdn", path: "avatar_all", sub_key: "editCostGroups" }
+  - { name: "avatarCustomCategorys", type: "cdn", path: "avatar_all", sub_key: "avatarCustomCategorys" }
+
+output_structure:
+  shop:
+    type: "object"
+    fields:
+      editCostGroups: { type: "list", from: "editCostGroups" }
+      avatarCustomCategorys: { type: "list", from: "avatarCustomCategorys" }

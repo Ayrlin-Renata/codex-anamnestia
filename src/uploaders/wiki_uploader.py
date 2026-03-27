@@ -129,6 +129,7 @@ class WikiUploader:
         self._upload_content(meta_page_name, meta_prefix, json.dumps(meta_data, separators=(',', ':')), f"Add data version {version_id}")
     
     def _upload_data(self, version, spec_name=None, is_historical=False):
+        import datetime
         logging.info("--- Uploading data files... ---")
         data_map = self.upload_config.get('data', {})
         data_prefix = "Module:Data"
@@ -148,7 +149,10 @@ class WikiUploader:
         version_id = version
         logging.info(f"Using version ID for this run: {version_id}")
         
-        for local_file, wiki_page_name in upload_map.items():
+        for local_file, config in upload_map.items():
+            wiki_page_name = config['page'] if isinstance(config, dict) else config
+            history_type = config.get('history') if isinstance(config, dict) else None
+            
             local_path = os.path.join("staging/output", local_file)
             logging.info(f"Processing data file: {local_path}")
             try:
@@ -170,8 +174,52 @@ class WikiUploader:
                 if not is_historical:
                     self._upload_content(wiki_page_name, data_prefix, content_to_upload, summary)
                 
-                history_page_name = f"{data_prefix}{self.history_prefix}/{version_id}{wiki_page_name}"
-                self._upload_content(history_page_name, data_prefix, content_to_upload, summary, is_history=True)
+                # History Handling
+                if history_type == 'timestamped':
+                    # Support for folders: /History/<version>/<page_basename>/<datetime>.json
+                    page_basename = wiki_page_name.replace('.json', '').strip('/')
+                    history_folder_title = f"{self.history_prefix}/{version_id}/{page_basename}".strip('/')
+                    # Full page name for uploading includes prefix
+                    history_folder_full = f"{data_prefix}/{history_folder_title}"
+                    
+                    logging.info(f"Checking for existing history in folder: {history_folder_full}")
+                    latest_content = None
+                    if self.site:
+                        # Find all pages in this "folder" using the title part only (excluding "Module:")
+                        # data_prefix is usually "Module:Data", so we take "Data/History/..."
+                        search_prefix = f"Data/{history_folder_title}"
+                        pages = list(self.site.allpages(prefix=search_prefix, namespace=828))
+                        if pages:
+                            # Sort by name descending to get the most recent timestamp
+                            latest_page = sorted(pages, key=lambda p: p.name, reverse=True)[0]
+                            logging.info(f"Comparing with latest history file: {latest_page.name}")
+                            latest_content = latest_page.text()
+                            
+                            # Robust comparison: strip whitespace and try JSON parsing
+                            if latest_content:
+                                latest_content = latest_content.strip()
+                                content_to_compare = content_to_upload.strip()
+                                
+                                if latest_content == content_to_compare:
+                                    latest_content = content_to_upload # Equal strings
+                                elif wiki_page_name.endswith('.json'):
+                                    try:
+                                        if json.loads(latest_content) == json.loads(content_to_compare):
+                                            latest_content = content_to_upload # Equal objects
+                                    except (json.JSONDecodeError, ValueError):
+                                        pass
+                    
+                    if latest_content == content_to_upload:
+                        logging.info(f"Content for '{page_basename}' is identical to the latest history file. Skipping history upload.")
+                    else:
+                        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+                        history_page_name = f"{history_folder_full}/{timestamp}.json"
+                        self._upload_content(history_page_name, "", content_to_upload, summary, is_history=True)
+                else:
+                    # Legacy single history file
+                    history_page_name = f"{data_prefix}{self.history_prefix}/{version_id}{wiki_page_name}"
+                    self._upload_content(history_page_name, data_prefix, content_to_upload, summary, is_history=True)
+                    
             except FileNotFoundError:
                 logging.error(f"Local file not found: {local_path}")
             except Exception as e:
