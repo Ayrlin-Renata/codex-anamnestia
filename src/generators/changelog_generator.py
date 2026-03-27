@@ -10,7 +10,7 @@ from src.utils.pipeline_runner import PipelineRunner
 
 class ChangelogGenerator:
     """
-    Generates a structured multi-level exhaustive changelog with aggregate metrics (Items · Changes).
+    Generates a structured multi-level exhaustive changelog with dynamic ID alignment.
     """
     def __init__(self, global_config):
         self.global_config = global_config
@@ -19,7 +19,7 @@ class ChangelogGenerator:
         """
         v1_info, v2_info: Dicts like {'local_data_paths': {...}} or strings (zip path)
         """
-        logging.info(f"--- Starting Advanced Changelog Generation (v7) ---")
+        logging.info(f"--- Starting Advanced Changelog Generation (v9) ---")
         
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
@@ -58,17 +58,18 @@ class ChangelogGenerator:
                         s_key = src.get('path_type') or src.get('source_key') or src.get('type')
                         rel_path = src.get('path')
                         decoder = src.get('decoder')
+                        id_field = src.get('key') or 'id'
                         if not rel_path.endswith('.json') and s_key == 'cdn':
                             rel_path += '.json'
-                        all_input_sources.append((s_key, rel_path, src.get('name'), decoder))
+                        all_input_sources.append((s_key, rel_path, src.get('name'), decoder, id_field))
 
             unique_inputs = sorted(list(set(all_input_sources)))
-            for s_key, rel_path, src_name, decoder in unique_inputs:
+            for s_key, rel_path, src_name, decoder, id_field in unique_inputs:
                 path1 = self._find_file(p1, s_key, rel_path)
                 path2 = self._find_file(p2, s_key, rel_path)
                 
                 if path1 and path2:
-                    diff = self._diff_file(path1, path2, src_name, decoder)
+                    diff = self._diff_file(path1, path2, src_name, decoder, id_field)
                     if diff:
                         input_diffs[rel_path] = diff
                         safe_name = rel_path.replace(os.sep, '_').replace('/', '_')
@@ -85,13 +86,27 @@ class ChangelogGenerator:
                 diff = self._diff_json_objects(res1, res2, spec_name)
                 
                 changed_deps = []
-                spec = load_spec(spec_name)
-                for src in spec.get('sources', []):
+                spec = load_spec(spec_name) or {}
+                
+                # Check normal sources
+                source_configs = spec.get('sources', [])
+                # Also include union sources if they have a path
+                union_source_names = [s.get('name') for s in spec.get('union_sources', [])]
+                
+                for src in source_configs:
                     rp = src.get('path')
-                    if rp and not rp.endswith('.json') and (src.get('path_type') == 'cdn' or src.get('type') == 'cdn'):
-                        rp += '.json'
-                    if rp in input_diffs:
-                        changed_deps.append(rp)
+                    if not rp: continue
+                    
+                    # Normalize for CDN
+                    norm_rp = rp
+                    if not norm_rp.endswith('.json') and (src.get('path_type') == 'cdn' or src.get('type') == 'cdn'):
+                        norm_rp += '.json'
+                    
+                    if norm_rp in input_diffs:
+                        changed_deps.append(norm_rp)
+                    elif src.get('name') in union_source_names and norm_rp in input_diffs:
+                         # Double check by name if path was different somehow? (unlikely but safe)
+                         changed_deps.append(norm_rp)
 
                 if diff or changed_deps:
                     spec_diffs[spec_name] = {'diff': diff, 'inputs': sorted(list(set(changed_deps)))}
@@ -120,7 +135,7 @@ class ChangelogGenerator:
             p = os.path.join(base, s_key, rel_path)
         return p if os.path.exists(p) else None
 
-    def _diff_file(self, p1, p2, name, decoder_type=None):
+    def _diff_file(self, p1, p2, name, decoder_type=None, id_field='id'):
         if decoder_type:
             try:
                 import importlib
@@ -128,13 +143,13 @@ class ChangelogGenerator:
                 decoder_func = getattr(decoder_module, decoder_type)
                 with open(p1, 'rb') as f: d1 = decoder_func(f.read())
                 with open(p2, 'rb') as f: d2 = decoder_func(f.read())
-                return self._diff_json_objects(d1, d2, name)
+                return self._diff_json_objects(d1, d2, name, id_field)
             except Exception as e:
                 return [f"### {name}", f"- Error decoding: {e}"]
         try:
             with open(p1, 'r', encoding='utf-8') as f: d1 = json.load(f)
             with open(p2, 'r', encoding='utf-8') as f: d2 = json.load(f)
-            return self._diff_json_objects(d1, d2, name)
+            return self._diff_json_objects(d1, d2, name, id_field)
         except:
             try:
                 with open(p1, 'r', encoding='utf-8', errors='replace') as f: c1 = f.read().strip()
@@ -145,37 +160,42 @@ class ChangelogGenerator:
                 return [f"### {name}", f"- Error diffing: {e}"]
         return None
 
-    def _deep_diff(self, v1, v2, path=""):
+    def _deep_diff(self, v1, v2, path="", id_field='id'):
         if v1 == v2: return []
         if isinstance(v1, dict) and isinstance(v2, dict):
             changes = []
             all_keys = sorted(list(set(v1.keys()) | set(v2.keys())))
             for k in all_keys:
                 sub_p = f"{path}.{k}" if path else k
-                changes.extend(self._deep_diff(v1.get(k), v2.get(k), sub_p))
+                changes.extend(self._deep_diff(v1.get(k), v2.get(k), sub_p, id_field))
             return changes
         if isinstance(v1, list) and isinstance(v2, list):
-            id_field = 'id'
             m1 = {str(item.get(id_field)): item for item in v1 if isinstance(item, dict) and item.get(id_field) is not None}
             m2 = {str(item.get(id_field)): item for item in v2 if isinstance(item, dict) and item.get(id_field) is not None}
+            
+            # Fallback for nested lists that might use 'id' even if parent used something else
+            if not m1 and not m2 and id_field != 'id':
+                m1 = {str(item.get('id')): item for item in v1 if isinstance(item, dict) and item.get('id') is not None}
+                m2 = {str(item.get('id')): item for item in v2 if isinstance(item, dict) and item.get('id') is not None}
+
             if m1 or m2:
                 changes = []
                 all_ids = sorted(list(set(m1.keys()) | set(m2.keys())))
                 for i in all_ids:
                     sub_p = f"{path}[{i}]" if path else f"[{i}]"
-                    changes.extend(self._deep_diff(m1.get(i), m2.get(i), sub_p))
+                    changes.extend(self._deep_diff(m1.get(i), m2.get(i), sub_p, id_field))
                 return changes
             else:
                 changes = []
                 for idx in range(max(len(v1), len(v2))):
                     sub_p = f"{path}[{idx}]" if path else f"[{idx}]"
-                    changes.extend(self._deep_diff(v1[idx] if idx<len(v1) else None, v2[idx] if idx<len(v2) else None, sub_p))
+                    changes.extend(self._deep_diff(v1[idx] if idx<len(v1) else None, v2[idx] if idx<len(v2) else None, sub_p, id_field))
                 return changes
         s1 = str(v1)[:100] + ('...' if len(str(v1))>100 else '') if v1 is not None else "None"
         s2 = str(v2)[:100] + ('...' if len(str(v2))>100 else '') if v2 is not None else "None"
         return [f"**{path}** (`{s1}` → `{s2}`)"]
 
-    def _diff_json_objects(self, d1, d2, name):
+    def _diff_json_objects(self, d1, d2, name, id_field='id'):
         def normalize(d):
             if isinstance(d, dict):
                 for k, v in d.items():
@@ -186,10 +206,14 @@ class ChangelogGenerator:
         l1, l2 = normalize(d1), normalize(d2)
         if not l1 and not l2: return None
         
-        id_field = 'id'
         m1 = {str(item.get(id_field)): item for item in l1 if item.get(id_field) is not None}
         m2 = {str(item.get(id_field)): item for item in l2 if item.get(id_field) is not None}
         
+        # Fallback for files that might use 'id' instead of the spec-defined key in some cases
+        if not m1 and not m2 and id_field != 'id':
+            m1 = {str(item.get('id')): item for item in l1 if item.get('id') is not None}
+            m2 = {str(item.get('id')): item for item in l2 if item.get('id') is not None}
+
         added = sorted(list(set(m2.keys()) - set(m1.keys())))
         removed = sorted(list(set(m1.keys()) - set(m2.keys())))
         common = set(m1.keys()) & set(m2.keys())
@@ -199,7 +223,7 @@ class ChangelogGenerator:
         changes_detail = []
         
         for i in sorted(list(common)):
-            field_changes = self._deep_diff(m1[i], m2[i])
+            field_changes = self._deep_diff(m1[i], m2[i], id_field=id_field)
             if field_changes:
                 name_hint = m2[i].get('name_en') or m2[i].get('localize_EN') or m2[i].get('item_name') or ""
                 hint = f" ({name_hint})" if name_hint else ""
@@ -219,7 +243,7 @@ class ChangelogGenerator:
             label = f"{name_hint} ({i})" if name_hint else i
             added_list.append(label)
             
-            all_fields = self._deep_diff({}, m2[i])
+            all_fields = self._deep_diff({}, m2[i], id_field=id_field)
             added_details.append(f"  - Item **{i}**{hint} (added: {len(all_fields)}):")
             for fc in all_fields: added_details.append(f"    - {fc}")
 
