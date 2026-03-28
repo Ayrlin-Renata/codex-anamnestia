@@ -1,0 +1,249 @@
+# Curated Summary Configuration
+# Define what fields are "important" and should appear in the curated summary.
+
+link_base_url: "https://holoearth.wiki.gg/wiki"
+
+specs:
+  creature_spec:
+    display_name: "Creatures"
+    hide_id: true
+    link_context: "creature"
+    important_fields:
+      - name_en
+      - name_ja
+      - species_id
+      - min_health
+      - max_health
+      - min_attack_power
+      - max_attack_power
+      - min_experience
+      - max_experience
+      - min_observation_point
+      - max_observation_point
+    summarize_fields:
+      drops: "Loot table changed"
+      resistances: "Resistances changed"
+      reaction_items: "Reaction items changed"
+      spawners: "Spawn patterns changed"
+    field_groups:
+      health:
+        fields: ["min_health", "max_health"]
+        label: "Health"
+        format: "{min_health} to {max_health}"
+      attack_power:
+        fields: ["min_attack_power", "max_attack_power"]
+        label: "Attack Power"
+        format: "{min_attack_power} to {max_attack_power}"
+      defense_power:
+        fields: ["min_defense_power", "max_defense_power"]
+        label: "Defense"
+        format: "{min_defense_power} to {max_defense_power}"
+      magic_defense:
+        fields: ["min_magic_defense", "max_magic_defense"]
+        label: "Magic Defense"
+        format: "{min_magic_defense} to {max_magic_defense}"
+      experience:
+        fields: ["min_experience", "max_experience"]
+        label: "Experience"
+        format: "{min_experience} to {max_experience}"
+      observation_point:
+        fields: ["min_observation_point", "max_observation_point"]
+        label: "Observation Point"
+        format: "{min_observation_point} to {max_observation_point}"
+    show_additional_changes: true
+    field_names:
+      name_en: "English Name"
+      name_ja: "Japanese Name"
+      species_id: "Species ID"
+      weight: "Weight"
+      min_health: "Min Health"
+      max_health: "Max Health"
+      min_attack_power: "Min Attack"
+      max_attack_power: "Max Attack"
+      min_defense_power: "Min Defense"
+      max_defense_power: "Max Defense"
+      min_magic_defense: "Min Magic Defense"
+      max_magic_defense: "Max Magic Defense"
+      min_robustness: "Min Robustness"
+      max_robustness: "Max Robustness"
+      min_down_resistance: "Min Down Resistance"
+      max_down_resistance: "Max Down Resistance"
+      down_duration: "Down Duration"
+      knockback_time_s: "Knockback Time (S)"
+      knockback_time_m: "Knockback Time (M)"
+      knockback_time_l: "Knockback Time (L)"
+      ignore_knockback_s: "Ignore Knockback (S)"
+      ignore_knockback_m: "Ignore Knockback (M)"
+      ignore_knockback_l: "Ignore Knockback (L)"
+      min_experience: "Min Exp"
+      max_experience: "Max Exp"
+      min_observation_point: "Min Obs Points"
+      max_observation_point: "Max Obs Points"
+      sight_distance: "Sight Distance"
+      sight_angle: "Sight Angle"
+      visible_time: "Visible Time"
+      hate_distance_low: "Hate Distance (Low)"
+      hate_distance_middle: "Hate Distance (Mid)"
+      hate_distance_strong: "Hate Distance (Strong)"
+      vigilance_ratio_out: "Vigilance Ratio (Out)"
+      vigilance_ratio_low: "Vigilance Ratio (Low)"
+      vigilance_ratio_middle: "Vigilance Ratio (Mid)"
+      vigilance_ratio_strong: "Vigilance Ratio (Strong)"
+      reaction_items.item_category: "Reaction Item Category"
+      resistances.element: "Element Resistance"
+      resistances.resistance: "Resistance Value"
+      drops.drop_id: "Drop Item"
+      drops.obtain_type: "Obtain Type"
+      drops.creature_min_level: "Drop Min Level"
+      drops.creature_max_level: "Drop Max Level"
+      drops.mix_drop_count: "Drop Count (Min)"
+      drops.max_drop_count: "Drop Count (Max)"
+      spawners.creature_min_level: "Spawn Min Level"
+      spawners.creature_max_level: "Spawn Max Level"
+      spawners.weight: "Spawn Weight"
+      spawners.max_spawn_count: "Max Spawn Count"
+      spawners.spawn_interval: "Spawn Interval"
+      spawners.is_allowed_house_spawn: "House Spawn Allowed"
+    include_additions: true
+    include_removals: true
+  
+  item_spec:
+    display_name: "Items"
+    hide_id: true
+    link_context: "item"
+    description_field: "description_en"
+    category_field: "category_id"
+    category_label_field: "category_name_en"
+    category_groups:
+      "Ceiling": "Housing Items"
+      "Direct Placement": "Housing Items"
+      "Fittings": "Housing Items"
+      "Wall Decorations": "Housing Items"
+      "Hunting Materials": "Materials"
+      "Axe": "Tools"
+      "Pickaxe": "Tools"
+      "Body": "Armor"
+      "Head": "Armor"
+      "Feet": "Armor"
+      "Accessory": "Accessories"
+    group_order:
+      - "Tools"
+      - "Armor"
+      - "Accessories"
+      - "Materials"
+      - "Housing Items"
+    sort_field: "sort_id"
+    important_fields:
+      - name_en
+      - name_ja
+      - description_en
+      - description_ja
+      - armor_details.weight
+      - armor_details.durable_value
+      - armor_details.defense_power
+      - armor_details.magic_defense
+      - accessory_details.weight
+      - accessory_details.durable_value
+      - accessory_details.defense
+      - accessory_details.magic_defense
+      - food_details.food_point
+      - food_details.water_point
+      - food_details.freshness
+      - housing_piece_details.hp
+      - housing_piece_details.mood
+      - implement_details.durable_value
+      - tool_details.durable_value
+      - tool_details.drop_multiplier
+      - weapon_details.durable_value
+      - weapon_details.attack_power
+      - weapon_details.magic_attack_power
+    summarize_fields:
+      category_id: "Category changed"
+      accessory_details: "Accessory details changed"
+      armor_details: "Armor details changed"
+      food_details: "Food details changed"
+      housing_piece_details: "Housing details changed"
+      implement_details.durable_value: "Durability changed"
+      material_details.freshness: "Freshness changed"
+      tool_details: "Tool details changed"
+      weapon_details: "Weapon details changed"
+    show_additional_changes: true
+    field_names:
+      name_en: "Name (EN)"
+      name_ja: "Name (JA)"
+      category_id: "Category ID"
+      sort_id: "Sort ID"
+      category_name_en: "Category Name (EN)"
+      category_name_ja: "Category Name (JA)"
+      icon_resource_name: "Icon Resource"
+      description_en: "Description (EN)"
+      description_ja: "Description (JA)"
+      accessory_details.system_type_name: "System Type"
+      accessory_details.accessory_type: "Accessory Type"
+      accessory_details.item_rank: "Rank"
+      accessory_details.weight: "Weight"
+      accessory_details.durable_value: "Durability"
+      accessory_details.defense: "Defense"
+      accessory_details.magic_defense: "Magic Defense"
+      armor_details.armor_type: "Armor Type"
+      armor_details.item_rank: "Rank"
+      armor_details.weight: "Weight"
+      armor_details.durable_value: "Durability"
+      armor_details.defense_power: "Defense"
+      armor_details.magic_defense: "Magic Defense"
+      food_details.food_point: "Food Points"
+      food_details.water_point: "Water Points"
+      food_details.freshness: "Freshness"
+      housing_piece_details.piece_type: "Piece Type"
+      housing_piece_details.hp: "HP"
+      housing_piece_details.physics_defense: "Physics Defense"
+      housing_piece_details.magic_defense: "Magic Defense"
+      housing_piece_details.mood: "Mood"
+      implement_details.durable_value: "Durability"
+      material_details.freshness: "Freshness"
+      tool_details.tool_type: "Tool Type"
+      tool_details.tool_category_id: "Tool Category"
+      tool_details.item_rank: "Rank"
+      tool_details.weight: "Weight"
+      tool_details.durable_value: "Durability"
+      tool_details.attack: "Attack"
+      tool_details.energy: "Energy"
+      tool_details.breaking: "Breaking Power"
+      tool_details.drop_multiplier: "Drop Multiplier"
+      weapon_details.weapon_type_id: "Weapon Type"
+      weapon_details.item_rank: "Rank"
+      weapon_details.weight: "Weight"
+      weapon_details.durable_value: "Durability"
+      weapon_details.attack_power: "Attack Power"
+      weapon_details.sub_element: "Sub Element"
+      weapon_details.sub_element_attack_power: "Sub Element Attack"
+    include_additions: true
+    include_removals: true
+
+  recipe_craft_spec:
+    display_name: "Crafting Recipes"
+    hide_id: true
+    disable_linking: true
+    link_context: ""
+    important_fields:
+      - result_item_id
+    field_names:
+      result_item_id: "Result Item"
+    include_additions: true
+    include_removals: true
+
+# Global transformations for specific fields across any spec/input
+transformations:
+  obtain_type:
+    1: "On Death"
+  item_category:
+    10102: "Tool"
+    10105: "Consumable"
+
+# You can also add specific raw input file rules if needed
+inputs:
+  master_creature.dat:
+    important_fields:
+      - hp
+      - attack
+      - defense
