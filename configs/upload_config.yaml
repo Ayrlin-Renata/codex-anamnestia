@@ -26,6 +26,7 @@ module_groups:
       Infobox_Creature.wikitext: "Infobox/Creature"
       Infobox_Item.wikitext: "Infobox/Item"
       Infobox_FashionItem.wikitext: "Infobox/FashionItem"
+      Crafting_Table.wikitext: "Crafting_Table"
   - prefix: "Module:Data"
     modules:
       utils.lua: "/Utils"
@@ -40,6 +41,8 @@ module_groups:
       avatar_clothing_ui.lua: "/ClothingItem/UI"
       avatar_accessory_util.lua: "/AccessoryItem/Util"
       avatar_accessory_ui.lua: "/AccessoryItem/UI"
+      recipe_craft_util.lua: "/Crafting/Util"
+      recipe_craft_ui.lua: "/Crafting/UI"
 
 maps:
   - file: "survival_icons.json"

@@ -73,7 +73,9 @@ class PipelineRunner:
             for union_source in spec.get('union_sources', []):
                 source_name = union_source['name']
                 id_field = union_source['id_field']
-                source_data = all_data.get(source_name, {})
+                source_data = all_data.get(source_name)
+                if not source_data: continue
+                
                 for item_or_list in source_data.values():
                     if isinstance(item_or_list, list):
                         for sub_item in item_or_list:
@@ -85,7 +87,11 @@ class PipelineRunner:
             resolved_objects = resolve_data(spec, all_data, master_id_set)
         else:
             primary_source_name = spec.get('primary_source')
-            primary_data = all_data.get(primary_source_name, {})
+            primary_data = all_data.get(primary_source_name)
+            if not primary_data:
+                logging.warning(f"Primary source '{primary_source_name}' is missing or empty for '{spec_name}'. Skipping resolution.")
+                return all_data, []
+                
             items_to_process = []
             for item_or_list in primary_data.values():
                 if isinstance(item_or_list, list):

@@ -251,6 +251,29 @@ specs:
       exp: "Experience"
     include_additions: true
     include_removals: true
+  
+  recipe_smelt_spec:
+    display_name: "Smelting Recipes"
+    hide_id: true
+    link_context: "item"
+    important_fields:
+      - material_amount
+      - result_amount
+      - craft_time
+      - drop_count_min
+      - drop_count_max
+    sort_field: "id"
+    custom_renderers:
+      byproducts: "recipe_byproducts"
+    summarize_fields:
+      byproducts: "Byproducts changed"
+      recipe_groups: "Recipe groups changed"
+    field_names:
+      material_item_id: "Input Material"
+      result_item_id: "Result Item"
+      result_amount: "Amount Produced"
+    include_additions: true
+    include_removals: true
 
 # Global transformations for specific fields across any spec/input
 transformations:
