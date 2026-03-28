@@ -246,6 +246,7 @@ function p.all(frame)
     local common = get_ui_common()
     local lang = common.get_lang(frame)
     local L = common.get_i18n(lang)
+    local filter, use_regex, category_filter = common.get_filter_params(frame)
 
     local lines = {}
     table.insert(lines, '{| class="wikitable sortable"')
@@ -263,12 +264,18 @@ function p.all(frame)
     table.insert(lines, '|-')
     table.insert(lines, table.concat(header_cells, '\n'))
 
+    local match_count = 0
     for _, item in ipairs(all_items) do
-        local details_list = item.housing_piece_details or item.food_details or item.weapon_details or item.armor_details or item.accessory_details or item.tool_details or item.material_details or item.implement_details or item.bullet_details or item.element_details or item.point_book_details or item.skill_book_details or item.trap_details or item.vehicle_item_details or item.fuel_item_details or {}
-        local details = get_primary_details(details_list)
-        local nameEN = (item.name_en or ''):gsub("[\n\r]", "")
-        local nameJA = (item.name_ja or ''):gsub("[\n\r]", "")
-        local nameCell = '| ' .. common.get_link(item, lang, nil, "item")
+        local lang_lower = string.lower(lang)
+        local name_localized = (item['name_' .. lang_lower] or item.name_en or ''):gsub("[\n\r]", "")
+        local category_localized = (item['category_name_' .. lang_lower] or item.category_name_en or '')
+
+        if common.matches_filter(name_localized, filter, use_regex) and
+           common.matches_filter(category_localized, category_filter, use_regex) then
+            match_count = match_count + 1
+            local details_list = item.housing_piece_details or item.food_details or item.weapon_details or item.armor_details or item.accessory_details or item.tool_details or item.material_details or item.implement_details or item.bullet_details or item.element_details or item.point_book_details or item.skill_book_details or item.trap_details or item.vehicle_item_details or item.fuel_item_details or {}
+            local details = get_primary_details(details_list)
+            local nameCell = '| ' .. common.get_link(item, lang, nil, "item")
 
         local category_field = 'category_name_' .. string.lower(lang)
         local category = item[category_field] or item.category_name_en or ''
@@ -314,6 +321,17 @@ function p.all(frame)
             '| ' .. (details.mood or '')
         }
         table.insert(lines, '|-\n' .. table.concat(rowCells, '\n'))
+        end
+    end
+
+    if match_count == 0 then
+        local msg = "''No items found"
+        if filter and filter ~= "" then msg = msg .. " matching filter: '" .. filter .. "'" end
+        if category_filter and category_filter ~= "" then 
+            if filter and filter ~= "" then msg = msg .. " and" end
+            msg = msg .. " in category: '" .. category_filter .. "'" 
+        end
+        return msg .. ".''"
     end
 
     table.insert(lines, '|}')

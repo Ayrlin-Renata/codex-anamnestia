@@ -40,7 +40,17 @@ p.i18n = {
 function p.get_lang(frame)
     local args = frame.args or {}
     local p_args = (frame.getParent and frame:getParent()) and frame:getParent().args or {}
-    local lang = args.lang or args[2] or p_args.lang or p_args[2] or 'EN'
+
+    local function pick(...)
+        local n = select('#', ...)
+        for i = 1, n do
+            local v = select(i, ...)
+            if v and v ~= "" then return v end
+        end
+        return nil
+    end
+
+    local lang = pick(args.lang, args[2], p_args.lang, p_args[2], 'EN')
     return string.upper(lang)
 end
 
@@ -52,6 +62,23 @@ end
 function p.getText(L, key)
     if not L or not key or key == "" then return key or "" end
     return L[key] or key
+end
+
+--[[
+    Safely resolves a nested value from a table given a dot-separated path.
+    Example: "details.item_rank"
+--]]
+function p.get_nested_value(obj, path)
+    if not obj or not path or path == "" then return nil end
+    local current = obj
+    for key in string.gmatch(path, "([^%.]+)") do
+        if type(current) == "table" then
+            current = current[key]
+        else
+            return nil
+        end
+    end
+    return current
 end
 
 --[[
@@ -105,16 +132,35 @@ function p.get_link(obj, lang, fields, context)
     -- Infer context if not provided
     local ctx = context
     if not ctx then
-        if obj.localize_EN then
-            ctx = "clothing" -- Default to clothing for fashion items
-        elseif obj.species_id then
+        if obj.species_id then
             ctx = "creature"
+        elseif obj.localize_EN then
+            ctx = "clothing" -- Default to clothing for fashion items
         else
             ctx = "item"
         end
     end
     
     local link_common = require("Module:Data/Common/Link")
+    local rule = link_common.rules[ctx]
+    
+    -- Apply category-based display overrides if configured
+    if rule and rule.category_field and rule.category_display_overrides then
+        local cat_val = p.get_nested_value(obj, rule.category_field)
+        if cat_val then
+            for _, override in ipairs(rule.category_display_overrides) do
+                if tostring(cat_val) == tostring(override.value) then
+                    local postfix = override.display_postfix
+                    if type(postfix) == "table" then
+                        postfix = postfix[lang] or postfix.EN or ""
+                    end
+                    display_name = display_name .. (postfix or "")
+                    break
+                end
+            end
+        end
+    end
+
     return link_common.get_link_markup(display_name, en_name, ctx)
 end
 
@@ -126,6 +172,46 @@ function p.render_row(label, value, is_empty_ok)
         return ""
     end
     return string.format('<div class="druid-row"><div class="druid-label">%s</div><div class="druid-data druid-data-nonempty">%s</div></div>', label, tostring(value))
+end
+
+--[[
+    Centralized logic for extracting filter parameters from a frame.
+--]]
+function p.get_filter_params(frame)
+    local args = frame.args or {}
+    local p_args = (frame.getParent and frame:getParent()) and frame:getParent().args or {}
+    
+    local function pick(...)
+        local n = select('#', ...)
+        for i = 1, n do
+            local v = select(i, ...)
+            if v and v ~= "" then return v end
+        end
+        return nil
+    end
+
+    local filter = pick(args.filter, args.param, args[1], p_args.filter, p_args.param, p_args[2])
+    local category_filter = pick(args.category, p_args.category)
+    local regex_val = pick(args.regex, p_args.regex)
+    local use_regex = (regex_val == 'true' or regex_val == 'yes')
+    
+    return filter, use_regex, category_filter
+end
+
+--[[
+    Standard filtering logic. Supports literal or Lua pattern matching.
+--]]
+function p.matches_filter(text, filter, use_regex)
+    if not filter or filter == "" then return true end
+    if not text then return false end
+    
+    if use_regex then
+        -- Lua standard pattern matching
+        return string.find(text, filter) ~= nil
+    else
+        -- Literal, case-insensitive substring match
+        return string.find(string.lower(text), string.lower(filter), 1, true) ~= nil
+    end
 end
 
 return p

@@ -37,6 +37,12 @@ rules:
     postfix: ""
 
   - context: "item"
+    category_field: "category_name_en"
+    category_display_overrides:
+      - value: "Engrams"
+        display_postfix:
+          EN: " (Engram)"
+          JA: " (エングラム)"
     variant_regexes:
       - "( ?[%(%[（]([A-Z][a-z][a-z]?)[%)%]）])$"
       - "( ?[%(%[（]([A-Z][a-z]+[A-Z][a-z]+)[%)%]）])$"

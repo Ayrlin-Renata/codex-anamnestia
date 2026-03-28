@@ -464,7 +464,7 @@ function p.alldrops(frame)
         return "''No drops found for any creatures.''"
     end
 
-    return '<div class="he-widepage">\n' .. table.concat(all_tables, '\n\n') .. '\n</div>'
+    return '<div>\n' .. table.concat(all_tables, '\n\n') .. '\n</div>'
 end
 
 --[[ 
@@ -495,6 +495,9 @@ end
 function p.source_creatures(frame)
     local util = get_util()
     local creature_util = get_creature_util()
+    
+    local common = get_ui_common()
+    local L = common.get_i18n(lang)
     
     local args = frame.args
     local parent_args = frame:getParent() and frame:getParent().args or {}
@@ -566,7 +569,7 @@ function p.source_creatures(frame)
     end
 
     if not next(rows_by_creature) then
-        return "''No creatures drop this item.''"
+        return string.format("''No creatures found that drop the item: '%s'.''", item_name_arg)
     end
 
     -- 4. Render Table

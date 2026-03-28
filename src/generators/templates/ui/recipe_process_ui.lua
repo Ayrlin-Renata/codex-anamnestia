@@ -1,12 +1,12 @@
 --[[ 
-  Crafting UI Module
-  Provides drop-in replacement for old Crafting module.
+  Processing UI Module
+  Provides drop-in replacement for legacy Processing module.
 --]]
 
 local p = {}
 
 local function get_util() return require("Module:Data/Utils") end
-local function get_craft_util() return require("Module:Data/Crafting/Util") end
+local function get_process_util() return require("Module:Data/Processing/Util") end
 local function get_ui_common() return require("Module:Data/Common/UI") end
 local function get_recipe_common() return require("Module:Data/Common/Recipe") end
 
@@ -38,9 +38,9 @@ local function create_wikitext_table(recipes, lang)
     table.insert(wikitext, '{| class="wikitable sortable"')
     table.insert(wikitext, string.format('! %s !! %s !! %s !! %s',
         getText(L, 'Result'),
+        getText(L, 'Byproduct'),
         getText(L, 'Facility'),
-        getText(L, 'Materials'),
-        getText(L, 'Other Requirements')
+        getText(L, 'Material')
     ))
     
     for _, recipe in pairs(recipes) do
@@ -52,14 +52,15 @@ local function create_wikitext_table(recipes, lang)
         local result_link = common.get_link(item_data, lang, nil, "item")
         table.insert(wikitext, string.format('| data-sort-value="%s" | %s ×%d', result_name, result_link, recipe.result_amount))
         
+        -- Byproduct
+        table.insert(wikitext, '| ' .. recipe_common.format_byproducts(recipe.byproducts, lang))
+
         -- Facility
         table.insert(wikitext, '| ' .. recipe_common.format_facilities(recipe.recipe_groups, lang))
         
-        -- Materials
-        table.insert(wikitext, '| ' .. recipe_common.format_materials(recipe.materials, lang))
-        
-        -- Requirements
-        table.insert(wikitext, '| ' .. recipe_common.format_requirements(recipe, lang))
+        -- Material
+        local mat = { item_id = recipe.material_item_id, amount = recipe.material_amount }
+        table.insert(wikitext, '| ' .. recipe_common.format_materials(mat, lang))
     end
     
     table.insert(wikitext, '|}')
@@ -71,16 +72,18 @@ end
 function p.get(frame)
     local common = get_ui_common()
     local lang = common.get_lang(frame)
-    local L = common.get_i18n(lang)
     
-    local target = trim(frame.args[1] or frame:getParent().args[1])
+    local args = frame.args
+    local target = trim(args[1] or args.param or frame:getParent().args[1])
     if not target or target == "" then
-        return "<strong class=\"error\">Error: Please provide a recipe name.</strong>"
+        local L = common.get_i18n(lang)
+        return "<strong class=\"error\">" .. (getText(L, 'Error: Please provide an item name.') or "Error: Please provide an item name.") .. "</strong>"
     end
     
-    local recipes = get_craft_util().get_recipes_by_result(target, lang)
+    local recipes = get_process_util().get_recipes_by_result(target, lang)
     if #recipes == 0 then
-        return string.format("Crafting recipe for '%s' not found.", target)
+        return string.format("Processing recipe for '%s' not found.", target)
+        -- Note: The old module had a slightly different error message, but this is consistent with our new Crafting UI.
     end
     
     return create_wikitext_table(recipes, lang)
@@ -89,16 +92,17 @@ end
 function p.isin(frame)
     local common = get_ui_common()
     local lang = common.get_lang(frame)
-    local L = common.get_i18n(lang)
     
-    local target = trim(frame.args[1] or frame:getParent().args[1])
+    local args = frame.args
+    local target = trim(args[1] or args.param or frame:getParent().args[1])
     if not target or target == "" then
-        return "<strong class=\"error\">Error: Please provide a material name.</strong>"
+        local L = common.get_i18n(lang)
+        return "<strong class=\"error\">" .. (getText(L, 'Error: Please provide a material name.') or "Error: Please provide a material name.") .. "</strong>"
     end
     
-    local recipes = get_craft_util().get_recipes_by_material(target, lang)
+    local recipes = get_process_util().get_recipes_by_material(target, lang)
     if #recipes == 0 then
-        return string.format("No recipes found using this material: '%s'.", target)
+        return string.format("No processing recipes found using this material: '%s'.", target)
     end
     
     return create_wikitext_table(recipes, lang)
@@ -107,16 +111,17 @@ end
 function p.facility(frame)
     local common = get_ui_common()
     local lang = common.get_lang(frame)
-    local L = common.get_i18n(lang)
     
-    local target = trim(frame.args[1] or frame:getParent().args[1])
+    local args = frame.args
+    local target = trim(args[1] or args.param or frame:getParent().args[1])
     if not target or target == "" then
-        return "<strong class=\"error\">Error: Please provide a facility name.</strong>"
+        local L = common.get_i18n(lang)
+        return "<strong class=\"error\">" .. (getText(L, 'Error: Please provide a facility name.') or "Error: Please provide a facility name.") .. "</strong>"
     end
     
-    local recipes = get_craft_util().get_recipes_by_facility(target, lang)
+    local recipes = get_process_util().get_recipes_by_facility(target, lang)
     if #recipes == 0 then
-        return string.format("No recipes found for this facility: '%s'.", target)
+        return string.format("No processing recipes found for this facility: '%s'.", target)
     end
     
     return create_wikitext_table(recipes, lang)
@@ -127,9 +132,9 @@ function p.all(frame)
     local lang = common.get_lang(frame)
     local filter, use_regex = common.get_filter_params(frame)
     
-    local raw_recipes = get_craft_util().get_all_recipes()
+    local raw_recipes = get_process_util().get_all_recipes()
     if not raw_recipes then
-        return "No recipes found in the data module (Module:Data/Recipe_Craft.json)."
+        return "No processing recipes found in the data module."
     end
 
     local utils = get_util()
@@ -148,12 +153,11 @@ function p.all(frame)
         end
     end
     
-    local count = #all_recipes
-    if count == 0 then
+    if #all_recipes == 0 then
         if filter and filter ~= "" then
-            return "No recipes found matching filter: " .. tostring(filter)
+            return "No processing recipes found matching filter: " .. tostring(filter)
         end
-        return "No recipes found in the data module."
+        return "No processing recipes found."
     end
     
     -- Sorting

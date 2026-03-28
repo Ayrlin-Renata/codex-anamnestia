@@ -226,7 +226,7 @@ output_structure:
       - { from: master_text_EN, link_key: { from: master_material, link_key: { from_context: "union_id" }, field: descriptionKey } }
       - { from: master_text_EN, link_key: { from: master_point_book, link_key: { from_context: "union_id" }, field: nameKey } }
       - { from: master_text_EN, link_key: { from: master_skill_book, link_key: { from_context: "union_id" }, field: nameKey } }
-      - { from: master_text_EN, link_key: { from: master_tool, link_key: { from_context: "union_id" }, field: nameKey } }
+      - { from: master_text_EN, link_key: { from: master_tool, link_key: { from_context: "union_id" }, field: descriptionKey } }
       - { from: master_text_EN, link_key: { from: master_trap, link_key: { from_context: "union_id" }, field: descriptionKey } }
       - { from: master_text_EN, link_key: { from: master_vehicle_item, link_key: { from_context: "union_id" }, field: nameKey } }
       - { from: master_text_EN, link_key: { from: master_weapon, link_key: { from_context: "union_id" }, field: descriptionKey } }

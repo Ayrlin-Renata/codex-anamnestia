@@ -13,10 +13,12 @@ shared_modules:
   - ui_common.lua
   - fashion_common.lua
   - link_common.lua
+  - recipe_common.lua
 
 shared_templates:
   - Infobox.wikitext
   - Infobox_FashionItem.wikitext
+  - Processing_Table.wikitext
 
 module_groups:
   - prefix: "Template:"
@@ -27,6 +29,7 @@ module_groups:
       Infobox_Item.wikitext: "Infobox/Item"
       Infobox_FashionItem.wikitext: "Infobox/FashionItem"
       Crafting_Table.wikitext: "Crafting_Table"
+      Processing_Table.wikitext: "Processing_Table"
   - prefix: "Module:Data"
     modules:
       utils.lua: "/Utils"
@@ -43,6 +46,9 @@ module_groups:
       avatar_accessory_ui.lua: "/AccessoryItem/UI"
       recipe_craft_util.lua: "/Crafting/Util"
       recipe_craft_ui.lua: "/Crafting/UI"
+      recipe_common.lua: "/Common/Recipe"
+      recipe_process_util.lua: "/Processing/Util"
+      recipe_process_ui.lua: "/Processing/UI"
 
 maps:
   - file: "survival_icons.json"
