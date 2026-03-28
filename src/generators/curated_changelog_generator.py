@@ -10,16 +10,32 @@ class CuratedChangelogGenerator:
         self.link_rules = link_rules or {}
         self.link_rules_map = {r['context']: r for r in self.link_rules.get('rules', [])}
 
+    def _format_label(self, label):
+        if "__" in label:
+            # Looks like an archive: "1.4.0.1__2026-03-28T01-41-47.zip"
+            # User wants: "1.4.0.1 (2026-03-28 1:41:47)"
+            name_part = label.replace(".zip", "")
+            if "__" in name_part:
+                version, timestamp = name_part.split("__", 1)
+                if "T" in timestamp:
+                    date, time = timestamp.split("T")
+                    time = time.replace("-", ":")
+                    # Handle leading zero in hour (user requested 1:41:47 not 01:41:47)
+                    if time.startswith("0") and len(time) > 1 and time[1] != ":":
+                        time = time[1:]
+                    return f"{version} ({date} {time})"
+        return label
+
     def generate(self, label_1, label_2, spec_curated_data, input_curated_data, output_format='markdown', context=None):
         is_wiki = output_format == 'wikitext'
+        f1 = self._format_label(label_1)
+        f2 = self._format_label(label_2)
         
         if is_wiki:
-            lines = [f"== Curated Change Summary: {label_1} vs {label_2} ==\n"]
+            lines = [f"== Changelog: {f2} since {f1} ==\n"]
         else:
-            lines = [f"# Curated Change Summary: {label_1} vs {label_2}\n"]
-            
-        lines.append("This report highlights only significant changes based on curated rules.\n")
-        
+            lines = [f"# Changelog: {f2} since {f1}\n"]
+                    
         def render_sections(data_map, section_type, context=None):
             res = []
             for name, data in sorted(data_map.items()):
@@ -171,7 +187,7 @@ class CuratedChangelogGenerator:
                item_data.get('localize_EN') or item_data.get('item_name')
                
         # Special case for recipes: look up result item name if name not in spec or looks like a placeholder
-        is_recipe = spec_name == 'recipe_craft_spec'
+        is_recipe = spec_name in ['recipe_craft_spec', 'recipe_smelt_spec']
         amount_prefix = ""
         if is_recipe:
             amount = item_data.get('result_amount', 1)

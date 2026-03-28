@@ -135,10 +135,8 @@ def handle_historical_update(args, global_config):
 
     logging.info("--- Historical Update Pipeline finished ---")
 
-def run_changelog_task(args, global_config):
+def run_changelog_task(args, global_config, current_archive=None):
     """Execution wrapper for ChangelogGenerator."""
-    # We need a version ONLY if we are doing a regular --changelog (auto-lookup)
-    # or if no other comparison method is specified.
     can_proceed = args.version or args.changelog_historical or (args.changelog_v1 and args.changelog_v2)
     
     if not can_proceed:
@@ -162,15 +160,21 @@ def run_changelog_task(args, global_config):
                 logging.warning("Changelog: historical_update_config.yaml not found.")
                 return
         else:
-            v1 = get_latest_archive(args.version)
+            # The baseline is the archive BEFORE the current one
+            v1 = get_latest_archive(args.version, fallback=True, skip_path=current_archive)
             if not v1:
                 logging.info(f"Changelog: No existing archives found for version {args.version}. Skipping.")
                 return
             label_1 = os.path.basename(v1)
 
     if not v2:
-        v2 = global_config
-        label_2 = "Current Local State"
+        if current_archive:
+            # Current state is the archive we just created/confirmed
+            v2 = current_archive
+            label_2 = os.path.basename(current_archive)
+        else:
+            v2 = global_config
+            label_2 = "Current Local State"
     
     output_dir = "staging/outputs/changelog"
     generator.generate(v1, v2, output_dir, label_1, label_2)
@@ -212,7 +216,10 @@ def main():
     # --- Main Pipeline Execution ---
     if args.action == 'changelog':
         logging.info("--- Starting Dedicated Changelog Generation ---")
-        run_changelog_task(args, global_config)
+        current_archive = None
+        if args.version:
+            current_archive = archive_version_sources(args.version, global_config)
+        run_changelog_task(args, global_config, current_archive=current_archive)
         logging.info("--- Pipeline finished ---")
         return
 
@@ -248,18 +255,20 @@ def main():
         else:
             logging.info("No version specified and changelog flags present. Skipping upload stage.")
 
+    # --- Archival Stage (runs FIRST so changelog can use the result) ---
+    current_archive = None
+    if args.action in ['collect', 'resolve', 'generate-modules', 'full'] and args.version:
+        logging.info("--- Starting Automatic Archival ---")
+        current_archive = archive_version_sources(args.version, global_config)
+        logging.info("--- Archival Stage Finished ---")
+
     # --- Changelog Stage ---
     if (args.action == 'full' or args.changelog or args.changelog_historical or 
         args.changelog_v1 or args.changelog_v2):
         logging.info("--- Starting Automatic Changelog Generation ---")
-        run_changelog_task(args, global_config)
+        run_changelog_task(args, global_config, current_archive=current_archive)
         logging.info("--- Changelog Stage Finished ---")
 
-    # --- Archival Stage ---
-    if args.action in ['collect', 'resolve', 'generate-modules', 'full'] and args.version:
-        logging.info("--- Starting Automatic Archival ---")
-        archive_version_sources(args.version, global_config)
-        logging.info("--- Archival Stage Finished ---")
 
     logging.info("--- Pipeline finished ---")
 

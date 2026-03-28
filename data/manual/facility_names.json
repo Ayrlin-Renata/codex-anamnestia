@@ -1,0 +1,117 @@
+[
+  {
+    "id": 1,
+    "name_en": "Handcraft",
+    "name_ja": "ハンドクラフト"
+  },
+  {
+    "id": 10,
+    "name_en": "Workbench",
+    "name_ja": "作業台"
+  },
+  {
+    "id": 22,
+    "name_en": "Smelting Furnace",
+    "name_ja": "製錬炉"
+  },
+  {
+    "id": 30,
+    "name_en": "Cooking Station",
+    "name_ja": "調理台"
+  },
+  {
+    "id": 31,
+    "name_en": "Stone Cooking Pot",
+    "name_ja": "石の調理鍋"
+  },
+  {
+    "id": 33,
+    "name_en": "Tanning Rack",
+    "name_ja": "皮なめし台"
+  },
+  {
+    "id": 37,
+    "name_en": "Mixing Cauldron",
+    "name_ja": "調合窯"
+  },
+  {
+    "id": 39,
+    "name_en": "Projection (All)",
+    "name_ja": "プロジェクション (すべて)"
+  },
+  {
+    "id": 391,
+    "name_en": "Projection (All, ID 391)",
+    "name_ja": "プロジェクション (すべて, ID 391)"
+  },
+  {
+    "id": 392,
+    "name_en": "Projection (All, ID 392)",
+    "name_ja": "プロジェクション (すべて, ID 392)"
+  },
+  {
+    "id": 393,
+    "name_en": "Projection (ID 393)",
+    "name_ja": "プロジェクション (ID 393)"
+  },
+  {
+    "id": 394,
+    "name_en": "Projection (ID 394)",
+    "name_ja": "プロジェクション (ID 394)"
+  },
+  {
+    "id": 395,
+    "name_en": "Projection (Simulation Room)",
+    "name_ja": "プロジェクション (シミュレーションルーム)"
+  },
+  {
+    "id": 396,
+    "name_en": "Projection (ID 396)",
+    "name_ja": "プロジェクション (ID 396)"
+  },
+  {
+    "id": 401,
+    "name_en": "Observation Data Exchange",
+    "name_ja": "観測データ交換所"
+  },
+  {
+    "id": 5,
+    "name_en": "Furnace (All)",
+    "name_ja": "炉 (すべて)"
+  },
+  {
+    "id": 501,
+    "name_en": "My Room Instance Exchange",
+    "name_ja": "マイルーム・インスタンス交換所"
+  },
+  {
+    "id": 6,
+    "name_en": "Campfire",
+    "name_ja": "たき火"
+  },
+  {
+    "id": 901,
+    "name_en": "Observation Data Exchange (ID 901)",
+    "name_ja": "観測データ交換所 (ID 901)"
+  },
+  {
+    "id": 902,
+    "name_en": "Observation Data Exchange (ID 902)",
+    "name_ja": "観測データ交換所 (ID 902)"
+  },
+  {
+    "id": 903,
+    "name_en": "Observation Data Exchange (ID 903)",
+    "name_ja": "観測データ交換所 (ID 903)"
+  },
+  {
+    "id": 904,
+    "name_en": "Observation Data Exchange (ID 904)",
+    "name_ja": "観測データ交換所 (ID 904)"
+  },
+  {
+    "id": 905,
+    "name_en": "Projection (ID 905)",
+    "name_ja": "プロジェクション (ID 905)"
+  }
+]

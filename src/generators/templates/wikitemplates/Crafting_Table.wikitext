@@ -1,0 +1,16 @@
+<includeonly>{{#ifeq: {{{1|}}} | {{#replace:{{{1|}}}| |}}
+  |<!--
+      CASE 1: No space was found in the first parameter.
+      This is ambiguous. It could be the NEW syntax OR the OLD syntax with a single-word title.
+      We must check the second parameter to be sure.
+  -->{{#switch: {{{2|}}}
+      | all | get | isin | facility | station | first | every
+      =<!-- OLD syntax with single-word title -->{{#invoke:Data/Crafting/UI|{{#switch:{{{2}}}|station=facility|#default={{{2}}}}}|{{{1}}}|lang={{{3|}}}}}
+      | #default
+      =<!-- NEW syntax -->{{#invoke:Data/Crafting/UI|{{{1}}}|{{{2|}}}|lang={{{3|}}}}}
+    }}
+  |<!-- CASE 2: A space was found in the first parameter. -->{{#invoke:Data/Crafting/UI|{{#switch:{{{2}}}|station=facility|#default={{{2}}}}}|{{{1}}}|lang={{{3|}}}}}
+}}</includeonly><noinclude>
+{{documentation}}
+[[Category:Formatting template]]
+</noinclude>

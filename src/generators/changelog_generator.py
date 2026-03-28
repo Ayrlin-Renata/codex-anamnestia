@@ -693,7 +693,7 @@ class ChangelogGenerator:
     def _resolve_base_paths(self, info, temp_dir):
         if isinstance(info, str) and info.endswith('.zip'):
             with zipfile.ZipFile(info, 'r') as z: z.extractall(temp_dir)
-            return {k: temp_dir for k in self.global_config.get('local_data_paths', {})}
+            return {k: os.path.join(temp_dir, k) for k in self.global_config.get('local_data_paths', {})}
         if isinstance(info, dict):
             resolved = {}
             for k, v in info.get('local_data_paths', {}).items():

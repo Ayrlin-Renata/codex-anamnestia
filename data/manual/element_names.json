@@ -1,14 +1,62 @@
 [
-  { "id": 1, "name_en": "Element 1", "name_ja": "1" },
-  { "id": 2, "name_en": "Element 2", "name_ja": "2" },
-  { "id": 3, "name_en": "Club", "name_ja": "棍棒" },
-  { "id": 4, "name_en": "Element 4", "name_ja": "4" },
-  { "id": 101, "name_en": "Fire", "name_ja": "火" },
-  { "id": 102, "name_en": "Water", "name_ja": "水" },
-  { "id": 103, "name_en": "Wind", "name_ja": "風" },
-  { "id": 104, "name_en": "Electric", "name_ja": "雷" },
-  { "id": 105, "name_en": "Terra", "name_ja": "土" },
-  { "id": 106, "name_en": "Ice", "name_ja": "氷" },
-  { "id": 107, "name_en": "Element 107", "name_ja": "107" },
-  { "id": 201, "name_en": "Poison", "name_ja": "毒" }
+  {
+    "id": 1,
+    "name_en": "Element 1",
+    "name_ja": "1"
+  },
+  {
+    "id": 2,
+    "name_en": "Element 2",
+    "name_ja": "2"
+  },
+  {
+    "id": 3,
+    "name_en": "Club",
+    "name_ja": "棍棒"
+  },
+  {
+    "id": 4,
+    "name_en": "Element 4",
+    "name_ja": "4"
+  },
+  {
+    "id": 101,
+    "name_en": "Fire",
+    "name_ja": "火"
+  },
+  {
+    "id": 102,
+    "name_en": "Water",
+    "name_ja": "水"
+  },
+  {
+    "id": 103,
+    "name_en": "Wind",
+    "name_ja": "風"
+  },
+  {
+    "id": 104,
+    "name_en": "Electric",
+    "name_ja": "雷"
+  },
+  {
+    "id": 105,
+    "name_en": "Terra",
+    "name_ja": "土"
+  },
+  {
+    "id": 106,
+    "name_en": "Ice",
+    "name_ja": "氷"
+  },
+  {
+    "id": 107,
+    "name_en": "Element 107",
+    "name_ja": "107"
+  },
+  {
+    "id": 201,
+    "name_en": "Poison",
+    "name_ja": "毒"
+  }
 ]

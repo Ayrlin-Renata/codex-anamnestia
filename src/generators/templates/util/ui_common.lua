@@ -15,6 +15,9 @@ p.i18n = {
         ['Weight'] = 'Weight', ['Max Count'] = 'Max Count', ['Interval'] = 'Interval',
         ['Weather Rules'] = 'Weather Rules', ['Static'] = 'Static', ['Biome'] = 'Biome',
         ['Summon'] = 'Summon', ['Point'] = 'Point', ['Species ID'] = 'Species ID',
+        ['Result'] = 'Result', ['Materials'] = 'Materials', ['Facility'] = 'Facility',
+        ['Other Requirements'] = 'Other Requirements', ['Durability'] = 'Durability',
+        ['Inclusion'] = 'Inclusion', ['Observation Points'] = 'Observation Points',
     },
     JA = {
         ['Yes'] = 'はい', ['No'] = 'いいえ', ['None'] = 'なし',
@@ -24,6 +27,9 @@ p.i18n = {
         ['Weight'] = '重量', ['Max Count'] = '最大数', ['Interval'] = '間隔',
         ['Weather Rules'] = '天候ルール', ['Static'] = '静的', ['Biome'] = 'バイオーム',
         ['Summon'] = '召喚', ['Point'] = 'ポイント', ['Species ID'] = '種族ID',
+        ['Result'] = '結果', ['Materials'] = '材料', ['Facility'] = '施設',
+        ['Other Requirements'] = 'その他の要件', ['Durability'] = '耐久性',
+        ['Inclusion'] = '包含', ['Observation Points'] = '観察ポイント',
     }
 }
 

@@ -33,6 +33,9 @@ def standardize_source(source_data, source_spec):
     """ 
     Standardizes raw data based on the strategy defined in the source's specification.
     """
+    if source_data is None:
+        return None
+        
     strategy = source_spec.get('strategy', 'lookup')
     key = source_spec.get('key')
     print(f"Standardizing source '{source_spec['name']}' with strategy '{strategy}'")
