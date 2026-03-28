@@ -37,7 +37,7 @@ function p.get_drops(creature_id, lang)
             level_range_str = level_range_str .. "-" .. drop_info.creature_max_level
         end
 
-        local drop_items = util.get_entries_by_field("/Drop_Creature.json", "drop_id", drop_info.drop_id, false)
+        local drop_items = drop_info.items or {}
         
         local groups = {}
         local group_map = {} -- Helper to quickly find and populate a group
@@ -114,7 +114,7 @@ function p.get_unique_drop_names(creature_id, lang)
     local names = {}
 
     for _, drop_info in ipairs(creature.drops) do
-        local drop_items = util.get_entries_by_field("/Drop_Creature.json", "drop_id", drop_info.drop_id, false)
+        local drop_items = drop_info.items
         if drop_items then
             for _, drop_item in ipairs(drop_items) do
                 if drop_item.item_id ~= 0 then

@@ -20,6 +20,8 @@ specs:
       - max_experience
       - min_observation_point
       - max_observation_point
+    custom_renderers:
+      drops: "loot_table"
     summarize_fields:
       drops: "Loot table changed"
       resistances: "Resistances changed"
@@ -98,6 +100,10 @@ specs:
       drops.creature_max_level: "Drop Max Level"
       drops.mix_drop_count: "Drop Count (Min)"
       drops.max_drop_count: "Drop Count (Max)"
+      drops.items.item_id: "Loot Item"
+      drops.items.drop_min_amount: "Loot Min"
+      drops.items.drop_max_amount: "Loot Max"
+      drops.items.weight: "Loot Weight"
       spawners.creature_min_level: "Spawn Min Level"
       spawners.creature_max_level: "Spawn Max Level"
       spawners.weight: "Spawn Weight"
@@ -223,12 +229,26 @@ specs:
   recipe_craft_spec:
     display_name: "Crafting Recipes"
     hide_id: true
-    disable_linking: true
-    link_context: ""
+    link_context: "item"
     important_fields:
-      - result_item_id
+      - result_amount
+      - observation_point
+      - required_token
+      - exp
+    sort_field: "id"
+    custom_renderers:
+      materials: "recipe_materials"
+      byproducts: "recipe_byproducts"
+    summarize_fields:
+      materials: "Recipe materials changed"
+      byproducts: "Byproducts changed"
+      recipe_groups: "Recipe groups changed"
     field_names:
       result_item_id: "Result Item"
+      result_amount: "Amount Produced"
+      observation_point: "Obs Points"
+      required_token: "Required Tokens"
+      exp: "Experience"
     include_additions: true
     include_removals: true
 

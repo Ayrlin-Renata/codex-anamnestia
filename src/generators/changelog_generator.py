@@ -75,6 +75,78 @@ class ChangelogGenerator:
             spec_diffs = {}
             spec_curated = {}
 
+            logging.info("Changelog: Loading global resolution data...")
+            def load_global_lookup(paths):
+                lookup = {'master_sources': {}}
+                from src.utils.decoder import decode_survival_dat
+                
+                # List of all files that might contain item ids and nameKeys
+                item_sources = [
+                    ('master_item_common', 'itemId'),
+                    ('master_accessory', 'accessoryId'),
+                    ('master_armor', 'armorId'),
+                    ('master_bullet', 'bulletId'),
+                    ('master_element', 'id'),
+                    ('master_food', 'foodId'),
+                    ('master_implement', 'implementId'),
+                    ('master_material', 'materialId'),
+                    ('master_point_book', 'id'),
+                    ('master_skill_book', 'id'),
+                    ('master_tool', 'toolId'),
+                    ('master_trap', 'trapId'),
+                    ('master_vehicle_item', 'itemId'),
+                    ('master_weapon', 'weaponId'),
+                    ('master_housing_piece', 'housingPieceId'),
+                ]
+                
+                for base_filename, id_field in item_sources:
+                    # Try both .json (decrypted) and .dat (legacy/encrypted)
+                    mi_p = self._find_file(paths, 'survival', base_filename + '.json') or \
+                           self._find_file(paths, 'survival', base_filename + '.dat')
+                    
+                    if mi_p:
+                        try:
+                            if mi_p.endswith('.json'):
+                                with open(mi_p, 'r', encoding='utf-8') as f:
+                                    data = json.load(f)
+                            else:
+                                with open(mi_p, 'rb') as f:
+                                    data = decode_survival_dat(f.read())
+                            
+                            s_name = base_filename
+                            if isinstance(data, dict) and 'list' in data:
+                                data = data['list']
+                            
+                            if isinstance(data, list):
+                                lookup['master_sources'][s_name] = {str(it.get(id_field, '')): it for it in data if isinstance(it, dict)}
+                                logging.debug(f"Changelog: Loaded {s_name} with {len(lookup['master_sources'][s_name])} entries ({'json' if mi_p.endswith('.json') else 'dat'}).")
+                            elif isinstance(data, dict):
+                                lookup['master_sources'][s_name] = data
+                                logging.debug(f"Changelog: Loaded {s_name} (dict).")
+                        except Exception as e:
+                            logging.warning(f"Changelog: Failed to load {base_filename}: {e}")
+                    else:
+                        logging.debug(f"Changelog: Master source {base_filename} not found.")
+
+                # Load master text EN (EN is default)
+                mt_p = self._find_file(paths, 'survival', 'master_text_EN.json') or \
+                       self._find_file(paths, 'survival', 'master_text_EN.dat')
+                if mt_p:
+                    try:
+                        if mt_p.endswith('.json'):
+                            with open(mt_p, 'r', encoding='utf-8') as f:
+                                lookup['master_text_EN'] = json.load(f)
+                        else:
+                            with open(mt_p, 'rb') as f:
+                                lookup['master_text_EN'] = decode_survival_dat(f.read())
+                    except Exception as e:
+                        logging.warning(f"Changelog: Failed to load master_text_EN: {e}")
+                
+                return lookup
+
+            global_v1 = load_global_lookup(p1)
+            global_v2 = load_global_lookup(p2)
+
             logging.info("Changelog: Diffing raw input files...")
             all_input_sources = []
             for spec_name in all_specs:
@@ -112,10 +184,14 @@ class ChangelogGenerator:
 
             logging.info("Changelog: Diffing resolved spec outputs...")
             for spec_name in all_specs:
-                _, res1 = runner1.run_spec(spec_name)
-                _, res2 = runner2.run_spec(spec_name)
+                all_data1, res1 = runner1.run_spec(spec_name)
+                all_data2, res2 = runner2.run_spec(spec_name)
                 
-                diff, curated = self._diff_json_objects(res1, res2, spec_name, is_spec=True)
+                # Merge global lookups into spec-specific data for name resolution
+                all_data1.update(global_v1)
+                all_data2.update(global_v2)
+                
+                diff, curated = self._diff_json_objects(res1, res2, spec_name, is_spec=True, all_data1=all_data1, all_data2=all_data2)
                 
                 changed_deps = []
                 spec = load_spec(spec_name) or {}
@@ -153,7 +229,7 @@ class ChangelogGenerator:
                             f.write("## Resolved Output Differences\n\nNo direct output changes detected.")
 
             logging.info("Changelog: Writing summaries...")
-            self._write_summaries(output_dir, label_1, label_2, input_diffs, spec_diffs, input_curated, spec_curated)
+            self._write_summaries(output_dir, label_1, label_2, input_diffs, spec_diffs, input_curated, spec_curated, global_v1, global_v2)
             logging.info(f"Changelog: Generation complete. Reports at {output_dir}")
 
     def _find_file(self, base_paths, s_key, rel_path):
@@ -249,7 +325,7 @@ class ChangelogGenerator:
         # v10: Removed all truncation as per user request
         return [f"**{path}** (`{v1}` → `{v2}`)"]
 
-    def _diff_json_objects(self, d1, d2, name, id_field='id', is_spec=True):
+    def _diff_json_objects(self, d1, d2, name, id_field='id', is_spec=True, all_data1=None, all_data2=None):
         def normalize(d):
             if isinstance(d, dict):
                 for k, v in d.items():
@@ -289,6 +365,11 @@ class ChangelogGenerator:
             if field_changes:
                 # Exhaustive label
                 name_hint = m2[i].get('name_en_custom') or m2[i].get('name_en') or m2[i].get('localize_EN') or m2[i].get('item_name') or ""
+                if not name_hint and name == 'recipe_craft_spec':
+                    result_id = m2[i].get('result_item_id')
+                    if result_id:
+                        name_hint = self.curated_gen._get_item_name(result_id, context={'all_data1': all_data1, 'all_data2': all_data2})
+
                 hint = f" ({name_hint})" if name_hint else ""
                 label = f"{name_hint} ({i})" if name_hint else i
                 mod_item_labels.append(label)
@@ -299,8 +380,9 @@ class ChangelogGenerator:
                 rules = self.curation_rules.get('specs' if is_spec else 'inputs', {}).get(name, {})
                 summarize_rules = rules.get('summarize_fields', {})
                 field_groups = rules.get('field_groups', {})
+                custom_renders = rules.get('custom_renderers', {})
                 show_additional = rules.get('show_additional_changes', False)
-                curated_label = self.curated_gen.format_item_label(i, m2[i], name, is_spec)
+                curated_label = self.curated_gen.format_item_label(i, m2[i], name, is_spec, context={'all_data1': all_data1, 'all_data2': all_data2})
                 
                 # Exhaustive log
                 for fc in field_changes:
@@ -308,10 +390,37 @@ class ChangelogGenerator:
 
                 found_groups = []
                 found_important = []
+                found_custom = []
                 found_summaries = []
                 summarized_paths = set()
                 summaries_added = set()
                 
+                # Zero-eth pass: Custom Renders (Branch level)
+                for c_path, c_type in custom_renders.items():
+                    # Identify if any change happened in this branch
+                    has_branch_change = False
+                    for fc in field_changes:
+                        if fc.startswith(f"**{c_path}"):
+                            has_branch_change = True
+                            break
+                    
+                    if has_branch_change:
+                        # Call custom renderer for the branch
+                        branch_v1 = m1[i].get(c_path)
+                        branch_v2 = m2[i].get(c_path)
+                        rendered = self.curated_gen.render_custom_branch(
+                            c_type, branch_v1, branch_v2, 
+                            output_format='markdown', # Summary writer handles different formats by re-running
+                            context={'all_data1': all_data1, 'all_data2': all_data2}
+                        )
+                        if rendered:
+                            found_custom.append(rendered)
+                            # Mark all fields in this branch as summarized
+                            for fc in field_changes:
+                                if fc.startswith(f"**{c_path}"):
+                                    match = re.match(r"\*\*(.*?)\*\*", fc)
+                                    if match: summarized_paths.add(match.group(1))
+
                 # Zero-eth pass: Field Groups (e.g. min/max ranges)
                 for g_id, g_cfg in field_groups.items():
                     g_fields = g_id if isinstance(g_cfg, list) else g_cfg.get('fields', [])
@@ -376,11 +485,11 @@ class ChangelogGenerator:
                 
                 # Final pass: Additional changes
                 found_additional = []
-                if show_additional and (found_groups or found_important or found_summaries):
+                if show_additional and (found_groups or found_important or found_summaries or found_custom):
                     if len(field_changes) > len(summarized_paths):
                         found_additional.append("Additional changes")
                 
-                found_imp = found_groups + found_important + found_summaries + found_additional
+                found_imp = found_groups + found_important + found_custom + found_summaries + found_additional
                 if found_imp:
                     curated_structure['modified'].append({
                         'label': curated_label,
@@ -392,6 +501,10 @@ class ChangelogGenerator:
         added_details = []
         for i in added:
             name_hint = m2[i].get('name_en_custom') or m2[i].get('name_en') or m2[i].get('localize_EN') or m2[i].get('item_name') or ""
+            if not name_hint and name == 'recipe_craft_spec':
+                result_id = m2[i].get('result_item_id')
+                if result_id:
+                    name_hint = self.curated_gen._get_item_name(result_id, context={'all_data1': all_data1, 'all_data2': all_data2})
             hint = f" ({name_hint})" if name_hint else ""
             label = f"{name_hint} ({i})" if name_hint else i
             added_list.append(label)
@@ -401,7 +514,7 @@ class ChangelogGenerator:
             for fc in all_fields: added_details.append(f"    - {fc}")
             
             if inc_adds:
-                curated_label = self.curated_gen.format_item_label(i, m2[i], name, is_spec)
+                curated_label = self.curated_gen.format_item_label(i, m2[i], name, is_spec, context={'all_data1': all_data1, 'all_data2': all_data2})
                 desc = m2[i].get(desc_field) if desc_field else None
                 curated_structure['added'].append({
                     'label': curated_label,
@@ -412,10 +525,14 @@ class ChangelogGenerator:
         removed_list = []
         for i in removed:
             name_hint = m1[i].get('name_en_custom') or m1[i].get('name_en') or m1[i].get('localize_EN') or m1[i].get('item_name') or ""
+            if not name_hint and name == 'recipe_craft_spec':
+                result_id = m1[i].get('result_item_id')
+                if result_id:
+                    name_hint = self.curated_gen._get_item_name(result_id, context={'all_data1': all_data1, 'all_data2': all_data2})
             label = f"{name_hint} ({i})" if name_hint else i
             removed_list.append(label)
             if inc_rems:
-                curated_label = self.curated_gen.format_item_label(i, m1[i], name, is_spec)
+                curated_label = self.curated_gen.format_item_label(i, m1[i], name, is_spec, context={'all_data1': all_data1, 'all_data2': all_data2})
                 curated_structure['removed'].append({
                     'label': curated_label,
                     'raw_data': m1[i]
@@ -510,7 +627,7 @@ class ChangelogGenerator:
             
         return fc
 
-    def _write_summaries(self, output_dir, label_1, label_2, input_diffs, spec_diffs, input_curated, spec_curated):
+    def _write_summaries(self, output_dir, label_1, label_2, input_diffs, spec_diffs, input_curated, spec_curated, all_data1, all_data2):
         with open(os.path.join(output_dir, "summary.md"), 'w', encoding='utf-8') as f:
             f.write(f"# Pipeline Changelog: {label_1} vs {label_2}\n\n")
             f.write(f"- **Input Files Changed**: {len(input_diffs)}\n")
@@ -523,12 +640,15 @@ class ChangelogGenerator:
         
         # Use CuratedChangelogGenerator to build the curated report
         # 1. Markdown Version
-        curated_md = self.curated_gen.generate(label_1, label_2, spec_curated, input_curated, output_format='markdown')
+        curated_md = self.curated_gen.generate(label_1, label_2, spec_curated, input_curated, output_format='markdown', context={'all_data1': all_data1, 'all_data2': all_data2})
+        # Re-generate with wikitext to ensure custom branches use correct markers
+        # Actually, render_custom_branch currently defaults to markdown in the call above.
+        # We need to make sure the generator knows which format it's in when rendering branches.
         with open(os.path.join(output_dir, "curated_summary.md"), 'w', encoding='utf-8') as f:
             f.write(curated_md)
             
         # 2. Wikitext Version
-        curated_wiki = self.curated_gen.generate(label_1, label_2, spec_curated, input_curated, output_format='wikitext')
+        curated_wiki = self.curated_gen.generate(label_1, label_2, spec_curated, input_curated, output_format='wikitext', context={'all_data1': all_data1, 'all_data2': all_data2})
         with open(os.path.join(output_dir, "curated_summary.wikitext"), 'w', encoding='utf-8') as f:
             f.write(curated_wiki)
 

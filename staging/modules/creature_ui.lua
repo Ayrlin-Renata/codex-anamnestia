@@ -513,64 +513,53 @@ function p.source_creatures(frame)
     end
     local target_item_id = item_data.id
 
-    -- 2. Find all drop_ids that contain this item
-    local drop_entries = util.get_entries_by_field("/Drop_Creature.json", "item_id", target_item_id, false)
-    if not drop_entries or #drop_entries == 0 then
-        return "''No creatures drop this item.''"
-    end
-
-    -- Group by drop_id for faster lookup
-    local drop_id_to_details = {}
-    for _, de in ipairs(drop_entries) do
-        local d_id = de.drop_id
-        if not drop_id_to_details[d_id] then drop_id_to_details[d_id] = {} end
-        table.insert(drop_id_to_details[d_id], de)
-    end
-
-    -- 3. Scan all creatures for matching drop_ids
+    -- 2. Scan all creatures for matching items
     local all_creatures = util.get_all_entries("/Creature.json")
     local rows_by_creature = {}
 
     for _, creature in ipairs(all_creatures) do
         if creature.drops then
             for _, drop_info in ipairs(creature.drops) do
-                local matches = drop_id_to_details[drop_info.drop_id]
-                if matches then
+                if drop_info.items then
                     -- Resolve total weight for each involved drop group to calculate chance
-                    -- Note: Drop_Creature.json entries for the SAME drop_id define the groups.
-                    local all_items_in_drop = util.get_entries_by_field("/Drop_Creature.json", "drop_id", drop_info.drop_id, false)
                     local group_weights = {}
-                    for _, item in ipairs(all_items_in_drop) do
+                    local matches = {}
+                    for _, item in ipairs(drop_info.items) do
                         local g_id = item.drop_group
                         group_weights[g_id] = (group_weights[g_id] or 0) + item.weight
+                        if item.item_id == target_item_id then
+                            table.insert(matches, item)
+                        end
                     end
 
-                    local details_parts = {}
-                    for _, match in ipairs(matches) do
-                        local amount_str = (match.drop_min_amount == match.drop_max_amount) and tostring(match.drop_min_amount) or (match.drop_min_amount .. "-" .. match.drop_max_amount)
-                        local total_g_weight = group_weights[match.drop_group] or 0
-                        local chance = (total_g_weight > 0) and (match.weight / total_g_weight * 100) or 0
-                        local chance_str = string.format("%.4g%%", chance)
-                        
-                        table.insert(details_parts, string.format("%s (%s)", amount_str, chance_str))
-                    end
+                    if #matches > 0 then
+                        local details_parts = {}
+                        for _, match in ipairs(matches) do
+                            local amount_str = (match.drop_min_amount == match.drop_max_amount) and tostring(match.drop_min_amount) or (match.drop_min_amount .. "-" .. match.drop_max_amount)
+                            local total_g_weight = group_weights[match.drop_group] or 0
+                            local chance = (total_g_weight > 0) and (match.weight / total_g_weight * 100) or 0
+                            local chance_str = string.format("%.4g%%", chance)
+                            
+                            table.insert(details_parts, string.format("%s (%s)", amount_str, chance_str))
+                        end
 
-                    local c_id = creature.id
-                    if not rows_by_creature[c_id] then
-                        local c_name = creature_util.get_creature_display_name(creature, lang)
-                        local c_link = string.format("[[%s|%s]]", creature.name_en or "", c_name)
-                        rows_by_creature[c_id] = { name = c_name, link = c_link, drops = {} }
-                    end
+                        local c_id = creature.id
+                        if not rows_by_creature[c_id] then
+                            local c_name = creature_util.get_creature_display_name(creature, lang)
+                            local c_link = string.format("[[%s|%s]]", creature.name_en or "", c_name)
+                            rows_by_creature[c_id] = { name = c_name, link = c_link, drops = {} }
+                        end
 
-                    local level_range = tostring(drop_info.creature_min_level)
-                    if drop_info.creature_min_level ~= drop_info.creature_max_level then
-                        level_range = level_range .. "-" .. drop_info.creature_max_level
-                    end
+                        local level_range = tostring(drop_info.creature_min_level)
+                        if drop_info.creature_min_level ~= drop_info.creature_max_level then
+                            level_range = level_range .. "-" .. drop_info.creature_max_level
+                        end
 
-                    table.insert(rows_by_creature[c_id].drops, {
-                        level_range = level_range,
-                        details = table.concat(details_parts, ", ")
-                    })
+                        table.insert(rows_by_creature[c_id].drops, {
+                            level_range = level_range,
+                            details = table.concat(details_parts, ", ")
+                        })
+                    end
                 end
             end
         end
