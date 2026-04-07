@@ -2,5 +2,5 @@
 # Example: %archive%/1.3.0.0__t.zip/survival
 local_data_paths:
   cdn: 'data\web_avatar\avatar_all.json'
-  manual: 'data\manual'
-  survival: 'source_archives\1.3.0.0__asarai.zip\1'
+  manual: 'source_archives\1.4.0.2__2026-03-31T02-26-47.zip'
+  survival: 'source_archives\1.4.0.2__2026-03-31T02-26-47.zip'

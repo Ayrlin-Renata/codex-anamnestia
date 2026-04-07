@@ -10,6 +10,21 @@
     "name_ja": "作業台"
   },
   {
+    "id": 16,
+    "name_en": "Mortar",
+    "name_ja": "すり鉢"
+  },
+  {
+    "id": 17,
+    "name_en": "Spinning Wheel",
+    "name_ja": "糸車"
+  },
+  {
+    "id": 18,
+    "name_en": "Loom",
+    "name_ja": "機織り機"
+  },
+  {
     "id": 22,
     "name_en": "Smelting Furnace",
     "name_ja": "製錬炉"
@@ -33,6 +48,11 @@
     "id": 37,
     "name_en": "Mixing Cauldron",
     "name_ja": "調合窯"
+  },
+  {
+    "id": 40,
+    "name_en": "Cooking Pot",
+    "name_ja": "調理鍋"
   },
   {
     "id": 39,
@@ -76,8 +96,8 @@
   },
   {
     "id": 5,
-    "name_en": "Furnace (All)",
-    "name_ja": "炉 (すべて)"
+    "name_en": "Blast Furnace",
+    "name_ja": "高火力製錬炉"
   },
   {
     "id": 501,

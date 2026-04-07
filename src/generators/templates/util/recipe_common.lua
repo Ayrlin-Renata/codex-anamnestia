@@ -180,7 +180,7 @@ end
     Formats byproducts with weight-based percentages.
 --]]
 function p.format_byproducts(byproducts, lang)
-    if not byproducts or #byproducts == 0 then
+    if not byproducts then 
         local L = get_ui_common().get_i18n(lang)
         return p.getText(L, 'N/A') or "N/A"
     end
@@ -190,7 +190,10 @@ function p.format_byproducts(byproducts, lang)
         totalWeight = totalWeight + (byproduct.weight or 0)
     end
 
-    if totalWeight == 0 then return "N/A" end
+    if totalWeight == 0 then 
+        local L = get_ui_common().get_i18n(lang)
+        return p.getText(L, 'N/A') or "N/A"
+    end
 
     local parts = {}
     local common = get_ui_common()
@@ -218,7 +221,12 @@ function p.format_byproducts(byproducts, lang)
         end
     end
 
-    return #parts > 0 and table.concat(parts, "<br />") or "N/A"
+    if #parts == 0 then
+        local L = get_ui_common().get_i18n(lang)
+        return p.getText(L, 'N/A') or "N/A"
+    end
+
+    return table.concat(parts, "<br />")
 end
 
 return p

@@ -22,6 +22,7 @@ union_sources:
   - { name: "master_vehicle_item", id_field: "itemId" }
   - { name: "master_weapon", id_field: "weaponId" }
   - { name: "master_housing_piece", id_field: "housingPieceId" }
+  - { name: "virtual_missing_items", id_field: "id" }
 
 # Full definition of all data sources required for this spec.
 sources:
@@ -42,6 +43,7 @@ sources:
   - { name: "master_vehicle_item", type: "local_file", path_type: "survival", path: "master_vehicle_item.dat", decoder: "decode_survival_dat", strategy: "group_by", key: "itemId" }
   - { name: "master_weapon", type: "local_file", path_type: "survival", path: "master_weapon.dat", decoder: "decode_survival_dat", strategy: "group_by", key: "weaponId" }
   - { name: "master_housing_piece", type: "local_file", path_type: "survival", path: "master_housing_piece.dat", decoder: "decode_survival_dat", strategy: "group_by", key: "housingPieceId" }
+  - { name: "virtual_missing_items", type: "virtual", generator: "generate_missing_items", strategy: "lookup", key: "id" }
   - { name: "system_types", type: "local_file", path_type: "manual", path: "system_types.json", decoder: "decode_json", strategy: "lookup" }
 
   - name: "master_mood_type"
@@ -85,6 +87,7 @@ output_structure:
 
   category_id:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: category_id }
       - { from: master_item_common, link_key: { from_context: "union_id" }, field: categoryId }
       - { from: master_accessory, link_key: { from_context: "union_id" }, field: categoryId }
       - { from: master_armor, link_key: { from_context: "union_id" }, field: categoryId }
@@ -105,6 +108,7 @@ output_structure:
 
   sort_id:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: sort_id }
       - { from: master_item_common, link_key: { from_context: "union_id" }, field: sortId }
       - { from: master_accessory, link_key: { from_context: "union_id" }, field: sortId }
       - { from: master_armor, link_key: { from_context: "union_id" }, field: sortId }
@@ -120,6 +124,7 @@ output_structure:
 
   category_name_en:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: category_name_en }
       - { from: master_text_EN, link_key: { from: master_item_category, link_key: { from: master_item_common, link_key: { from_context: "union_id" }, field: categoryId }, field: "nameKey" } }
       - { from: master_text_EN, link_key: { from: master_item_category, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: categoryId }, field: "nameKey" } }
       - { from: master_text_EN, link_key: { from: master_item_category, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: categoryId }, field: "nameKey" } }
@@ -140,6 +145,7 @@ output_structure:
 
   category_name_ja:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: category_name_ja }
       - { from: master_text_JA, link_key: { from: master_item_category, link_key: { from: master_item_common, link_key: { from_context: "union_id" }, field: categoryId }, field: "nameKey" } }
       - { from: master_text_JA, link_key: { from: master_item_category, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: categoryId }, field: "nameKey" } }
       - { from: master_text_JA, link_key: { from: master_item_category, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: categoryId }, field: "nameKey" } }
@@ -160,6 +166,7 @@ output_structure:
 
   icon_resource_name:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: icon_resource_name }
       - { from: master_item_common, link_key: { from_context: "union_id" }, field: iconResourceName }
       - { from: master_accessory, link_key: { from_context: "union_id" }, field: iconResourceName }
       - { from: master_armor, link_key: { from_context: "union_id" }, field: iconResourceName }
@@ -183,6 +190,7 @@ output_structure:
 
   name_en:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: name_en }
       - { from: master_text_EN, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: nameKey } }
       - { from: master_text_EN, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: nameKey } }
       - { from: master_text_EN, link_key: { from: master_bullet, link_key: { from_context: "union_id" }, field: nameKey } }
@@ -200,6 +208,7 @@ output_structure:
 
   name_ja:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: name_ja }
       - { from: master_text_JA, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: nameKey } }
       - { from: master_text_JA, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: nameKey } }
       - { from: master_text_JA, link_key: { from: master_bullet, link_key: { from_context: "union_id" }, field: nameKey } }
@@ -217,6 +226,7 @@ output_structure:
 
   description_en:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: description_en }
       - { from: master_text_EN, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: descriptionKey } }
       - { from: master_text_EN, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: descriptionKey } }
       - { from: master_text_EN, link_key: { from: master_bullet, link_key: { from_context: "union_id" }, field: descriptionKey } }
@@ -234,6 +244,7 @@ output_structure:
 
   description_ja:
     coalesce:
+      - { from: virtual_missing_items, link_key: { from_context: "union_id" }, field: description_ja }
       - { from: master_text_JA, link_key: { from: master_accessory, link_key: { from_context: "union_id" }, field: descriptionKey } }
       - { from: master_text_JA, link_key: { from: master_armor, link_key: { from_context: "union_id" }, field: descriptionKey } }
       - { from: master_text_JA, link_key: { from: master_bullet, link_key: { from_context: "union_id" }, field: descriptionKey } }

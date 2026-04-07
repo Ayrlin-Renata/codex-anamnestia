@@ -62,7 +62,10 @@ def _check_condition(context, condition_rule, all_data):
     """
     Checks if a condition is met for a conditional sub-object.
     """
-    source_to_check = all_data.get(condition_rule['source'], {})
+    source_to_check = all_data.get(condition_rule['source'])
+    if source_to_check is None:
+        source_to_check = {}
+        
     key_to_check = _get_value(context, condition_rule['key'], all_data, silent=True)
     
     if key_to_check is None:

@@ -1,73 +1,13 @@
 # Specification for resolving harvestable objects.
 
 sources:
-  - name: "breakable_name_en"
-    type: "manual"
-    data:
-      ウサニンジン: "Usa Carrot"
-      ノラニンニク: "Nora Garlic"
-      シャッキリオニオン: "Crisp Onion"
-      綿花: "Cotton"
-      メディカルリーフ: "Medical Leaf"
-      ラベンダー: "Lavender"
-      ホタルブクロ: "Spotted Bellflower"
-      キノコ: "Mushroom"
-      ドクタケ: "Poison Shroom"
-      ハッカペッパー: "Hakka Pepper"
-      フレイムペッパー: "Flame Pepper"
-      シビレタケ: "Numbing Shroom"
-      茂み: "Bush"
-      アブラナ: "Canola"
-      ヒエアロエ: "Cooling Aloe"
-      刺さった剣（仮）: "Stuck Sword (Temp)"
-      リンゴ: "Apple"
-      キリットレモン: "Sharp Lemon"
-      はちみつ: "Honey"
-      うるおいベリー: "Moisture Berry"
-      ハートチェリー: "Heart Cherry"
-      ミエルベリー: "Blueberry"
-      ルビーチェリー: "Ruby Cherry"
-      木の枝: "Tree Branch"
-      クズ石: "Scrap Stone"
-      火打石: "Flint"
-      落ちたリンゴ: "Fallen Apple"
-      ヒメニチソウ: "Periwinkle"
-      ドラゴンの鱗: "Dragon Scale"
-      爆弾石: "Bomb Rock"
-
-  - name: "breakable_name_ja"
-    type: "manual"
-    data:
-      ウサニンジン: "ウサニンジン"
-      ノラニンニク: "ノラニンニク"
-      シャッキリオニオン: "シャッキリオニオン"
-      綿花: "綿花"
-      メディカルリーフ: "メディカルリーフ"
-      ラベンダー: "ラベンダー"
-      ホタルブクロ: "ホタルブクロ"
-      キノコ: "キノコ"
-      ドクタケ: "ドクタケ"
-      ハッカペッパー: "ハッカペッパー"
-      フレイムペッパー: "フレイムペッパー"
-      シビレタケ: "シビレタケ"
-      茂み: "茂み"
-      アブラナ: "アブラナ"
-      ヒエアロエ: "ヒエアロエ"
-      刺さった剣（仮）: "刺さった剣（仮）"
-      リンゴ: "リンゴ"
-      キリットレモン: "キリットレモン"
-      はちみつ: "はちみつ"
-      うるおいベリー: "うるおいベリー"
-      ハートチェリー: "ハートチェリー"
-      ミエルベリー: "ミエルベリー"
-      ルビーチェリー: "ルビーチェリー"
-      木の枝: "木の枝"
-      クズ石: "クズ石"
-      火打石: "火打石"
-      落ちたリンゴ: "落ちたリンゴ"
-      ヒメニチソウ: "ヒメニチソウ"
-      ドラゴンの鱗: "ドラゴンの鱗"
-      爆弾石: "爆弾石"
+  - name: "breakable_names"
+    type: "local_file"
+    path_type: "manual"
+    path: "breakable_names.json"
+    decoder: "decode_json"
+    strategy: "lookup"
+    key: "id"
 
   - name: "master_harvestable_object"
     type: "local_file"
@@ -89,8 +29,8 @@ primary_source: "master_harvestable_object"
 
 output_structure:
   id: { from: "master_harvestable_object", field: "objectId" }
-  name_en: { from: "breakable_name_en", link_key: { from: "master_harvestable_object", field: "nameForTool" }}
-  name_ja: { from: "breakable_name_ja", link_key: { from: "master_harvestable_object", field: "nameForTool" }}
+  name_en: { from: "breakable_names", link_key: { from: "master_harvestable_object", field: "nameForTool" }, field: "name_en" }
+  name_ja: { from: "breakable_names", link_key: { from: "master_harvestable_object", field: "nameForTool" }, field: "name_ja" }
 
   # Direct fields from the primary source
   name_for_tool: { from: "master_harvestable_object", field: "nameForTool" }

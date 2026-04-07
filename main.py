@@ -186,6 +186,7 @@ def main():
     parser.add_argument('--action', type=str, choices=['collect', 'resolve', 'generate-modules', 'upload', 'full', 'historical-update', 'changelog'], default='full', help='The action to perform.')
     parser.add_argument('--upload-target', type=str, choices=['data', 'modules', 'maps', 'templates', 'all'], default='all', help="Specify what to upload.")
     parser.add_argument('--version', type=str, help='A specific version string (e.g., game version) for the upload.')
+    parser.add_argument('--force-upload', action='store_true', help='Force upload even if the version is not newer than the online meta.')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose logging output.')
     
     # Changelog arguments
@@ -247,7 +248,7 @@ def main():
         if args.version:
             logging.info("--- Stage 4: Starting Upload ---")
             uploader = WikiUploader()
-            uploader.upload(args.upload_target, args.version, spec_name=args.spec)
+            uploader.upload(args.upload_target, args.version, spec_name=args.spec, force_upload=args.force_upload)
             logging.info("--- Stage 4: Finished ---")
         elif not (args.changelog or args.changelog_historical or args.changelog_v1 or args.changelog_v2):
             logging.error("The 'upload' or 'full' action requires a --version to be specified.")

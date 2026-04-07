@@ -318,11 +318,60 @@ class WikiUploader:
             except Exception as e:
                 logging.error(f"Error while processing {local_path}: {e}")
     
-    def upload(self, upload_target, version, spec_name=None, is_historical=False):
+    def _compare_versions(self, v1, v2):
+        """
+        Compares two version strings. Returns 1 if v1 > v2, -1 if v1 < v2, 0 if equal.
+        Handles dot-separated versions (e.g., 1.4.0.2).
+        """
+        if not v1 or not v2: return 0
+        try:
+            p1 = [int(p) for p in v1.split('.')]
+            p2 = [int(p) for p in v2.split('.')]
+            for i in range(max(len(p1), len(p2))):
+                i1 = p1[i] if i < len(p1) else 0
+                i2 = p2[i] if i < len(p2) else 0
+                if i1 > i2: return 1
+                if i1 < i2: return -1
+            return 0
+        except (ValueError, AttributeError):
+            # Fallback to standard string comparison if not purely dots and numbers
+            if v1 > v2: return 1
+            if v1 < v2: return -1
+            return 0
+
+    def upload(self, upload_target, version, spec_name=None, is_historical=False, force_upload=False):
         if not version:
             logging.error("Upload action requires a version string. Use the --version argument.")
             return
         
+        # --- Safety Check: Only upload if version is NEWER than online version ---
+        if not is_historical and self.site:
+            meta_page_name = self.upload_config.get('meta_page', '/meta.json')
+            meta_prefix = "Module:Data"
+            full_meta_name = f"{meta_prefix}{meta_page_name}"
+            
+            try:
+                page = self.site.pages[full_meta_name]
+                if page.exists:
+                    meta_content = json.loads(page.text())
+                    online_versions = meta_content.get('versions', [])
+                    if online_versions:
+                        latest_online = online_versions[0]
+                        comparison = self._compare_versions(version, latest_online)
+                        
+                        if comparison <= 0:
+                            if force_upload:
+                                logging.warning(f"Version '{version}' is NOT newer than online version '{latest_online}', but forcing upload as requested.")
+                            else:
+                                logging.warning(f"ABORTING UPLOAD: Version '{version}' is not newer than the current online version '{latest_online}'.")
+                                logging.info("Use --force-upload to bypass this safety check.")
+                                return
+                        else:
+                            logging.info(f"Version check passed: '{version}' is newer than '{latest_online}'.")
+            except Exception as e:
+                logging.debug(f"Failed to fetch online metadata for safety check: {e}")
+                # Continue if we can't check (e.g., first time setup)
+
         if upload_target in ['modules', 'data', 'maps', 'templates', 'all']:
             self._upload_meta(version, is_historical=is_historical)
         

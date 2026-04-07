@@ -44,7 +44,7 @@ class ChangelogGenerator:
         """
         v1_info, v2_info: Dicts like {'local_data_paths': {...}} or strings (zip path)
         """
-        logging.info(f"--- Starting Advanced Changelog Generation (v10) ---")
+        logging.info(f"--- Starting Changelog Generation ---")
         
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
@@ -234,10 +234,17 @@ class ChangelogGenerator:
 
     def _find_file(self, base_paths, s_key, rel_path):
         base = base_paths.get(s_key, "")
+        if not base:
+            return None
+            
         p = os.path.join(base, rel_path)
         if not os.path.exists(p):
             p = os.path.join(base, s_key, rel_path)
-        return p if os.path.exists(p) else None
+            
+        if os.path.exists(p):
+            logging.debug(f"Changelog: Found input file at {p}")
+            return p
+        return None
 
     def _diff_file(self, p1, p2, name, decoder_type=None, id_field='id'):
         if decoder_type:
@@ -704,7 +711,15 @@ class ChangelogGenerator:
                     zip_p, sub = parts[0] + '.zip', parts[1].lstrip('\\/') if len(parts) > 1 else ""
                     ext_to = os.path.join(temp_dir, k)
                     with zipfile.ZipFile(zip_p, 'r') as z: z.extractall(ext_to)
-                    resolved[k] = os.path.join(ext_to, sub)
+                    
+                    final_path = os.path.join(ext_to, sub)
+                    # If sub is empty, check if there's an internal doubled folder (common in archives)
+                    if not sub:
+                        check_doubled = os.path.join(ext_to, k)
+                        if os.path.exists(check_doubled) and os.path.isdir(check_doubled):
+                            final_path = check_doubled
+                            
+                    resolved[k] = final_path
                 else: resolved[k] = os.path.abspath(v)
             return resolved
         return None
